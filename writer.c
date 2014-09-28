@@ -1,11 +1,9 @@
 /* writer.c */
 
-
+#include <stdio.h>
 
 #include <fcntl.h>
 #include <unistd.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
 #include "wrrd.h"
@@ -32,40 +30,54 @@ int main(void) {
 	int j = TIMES_TO_WRITE;
 	int oflags = O_WRONLY || O_CREAT;
 	int omodes = S_IRUSR || S_IWUSR || S_IROTH;
-	int fd = open(getfile(), oflags , omodes);
+	int fd = open("hello.txt", oflags , omodes);
+
+	printf("after open\n");
 
 	if (fd < 0)
 	    return 1;
 
+	printf("after open verification\n");
+
 	while(j--)
-	    if (write(fd, getstr(), STRLEN) != STRLEN)
+	    if (write(fd, "hello\n", STRLEN) != STRLEN)
 		return 1;
+
+	printf("after write\n");
 
 	if (close(fd) < 0)
 	    return 1;
+
+	printf("after close\n");
     }
     return 0;
 }
 
 
 char *getfile() {
-    char file[13] = "SO2014-";
-    char *ext = ".txt";
     int r = rand() % 5;
+    char *file = (char*)malloc(sizeof(char) * 13);
+    char *filename = "SO2014-";
+    char letter  = 'a' + r;
+    char *ext = ".txt";
 
-    strcat(file, 'a' + r);
+    strcpy(file, filename);
+    strcat(file, &letter);
     strcat(file, ext);
 
     return file;
 }
 
 char *getstr() {
-    int r = rand() % 10, i = 10;
-    char str[11];
+    int r = rand() % 10, i = 0;
+    char *str = (char*)malloc(sizeof(char) * 12);
     char letter = 'a' + r;
 
-    while(i--)
+    while(i++ < 10)
 	str[i] = letter;
+
+    str[i++] = '\n';
+    str[i] = '\0';
 
     return str;
 }
