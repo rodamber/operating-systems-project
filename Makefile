@@ -1,5 +1,3 @@
-# Makefile
-
 all: wr rd
 
 rd: reader.o wrrdaux.o

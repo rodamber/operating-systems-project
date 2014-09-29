@@ -3,20 +3,23 @@
 #include <time.h>
 #include "wrrd.h"
 
-void getfilename(char *dst) {
+void getfile(char *dst) {
     /* 
-     * Returns a string of type "SO2014-X.txt", where X is a random integer
-     * between 0 and FILENUM.
+     * Returns a string of type "SO2014-X.txt", where X is a pseudo-random 
+     * integer between 0 and FILENUM.
      */
     int r;
     char *prefix = "SO2014-";
     char number[2];
     char *ext = ".txt";
 
+    /* 
+     * Launch seed based on current time and then get pseudo-random number.
+     */
     srand(time(NULL));
     r = rand() % FILENUM;
 
-    number[0] = '0' + r;	/* number between 0 and FILENUM - 1 */
+    number[0] = '0' + r;
     number[1] = '\0';
 
     strcpy(dst, prefix);
@@ -28,19 +31,22 @@ void getfilename(char *dst) {
 void getstr(char *dst) {
     /* 
      * Returns a STRLEN size character string composed of STRLEN - 1 equal 
-     * characters between 'a' and 'a' + STRLEN plus a '\n'.
+     * characters between 'a' and 'a' + STRLEN ending on a newline character.
      */
-    int  r, i = 0;
+    int  r;
     char letter;
 
+    /* 
+     * Launch seed based on current time and then get pseudo-random number.
+     */
     srand(time(NULL));
     r = rand() % STRLEN;
 
     letter = 'a' + r;
 
-    while(i < STRLEN - 1)
-	dst[i++] = letter;
+    for (r = 0; r < STRLEN - 1; r++)
+	dst[r] = letter;
 
-    dst[i++] = '\n';
-    dst[i] = '\0';
+    dst[r++] = '\n';
+    dst[r] = '\0';
 }

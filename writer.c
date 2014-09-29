@@ -27,7 +27,7 @@ int main(void) {
 	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
-	getfilename(fn);
+	getfile(fn);
 
 	/* 
 	 * Open file.  Return if there was an error opening the file.

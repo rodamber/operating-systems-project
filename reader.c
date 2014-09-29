@@ -10,9 +10,9 @@ int main(void) {
     char fn[FNLEN + 1];
     char buf[STRLEN + 1];
     char firstline[STRLEN + 1];
-    int  i = TIMES_TO_WRITE - 1, fd, n;
+    int  i = TIMES_TO_WRITE - 1, fd;
 
-    getfilename(fn);
+    getfile(fn);
 
     /* 
      * Open file. Return if there was an error opening the file.
