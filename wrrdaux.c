@@ -2,39 +2,33 @@
 #include <string.h>
 #include "wrrd.h"
 
-char *getfilename() {
+void getfilename(char *dst) {
     /* 
      * Returns a string of type "SO2014-X.txt", where X is a random integer
      * between 0 and FILENUM.
      */
     int r = rand() % FILENUM;
-    char *fn = (char*)malloc(sizeof(char) * 13);
     char *prefix = "SO2014-";
     char number[2] = {'0' + r};	/* number between 0 and FILENUM - 1 */
     char *ext = ".txt";
 
-    strcpy(fn, prefix);
-    strcat(fn, number);
-    strcat(fn, ext);
-
-    return fn;
+    strcpy(dst, prefix);
+    strcat(dst, number);
+    strcat(dst, ext);
 }
 
 
-char *getstr() {
+void getstr(char *dst) {
     /* 
      * Returns a STRLEN size character string composed of STRLEN - 1 equal 
      * characters between 'a' and 'a' + STRLEN plus a '\n'.
      */
     int  r = rand() % STRLEN, i = 0;
-    char *str = (char*)malloc(sizeof(char) * (STRLEN + 1));
     char letter = 'a' + r;
 
-    while(i++ < STRLEN - 1)
-	str[i] = letter;
+    while(i < STRLEN - 1)
+	dst[i++] = letter;
 
-    str[i++] = '\n';
-    str[i] = '\0';
-
-    return str;
+    dst[i++] = '\n';
+    dst[i] = '\0';
 }

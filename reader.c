@@ -1,5 +1,6 @@
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include "wrrd.h"
 
@@ -8,9 +9,13 @@
 
 int main(void) {
     int i = TIMES_TO_WRITE - 1; /*  */
-    int fd = open(getfilename(), O_RDONLY);
+    int fd; 			/* file descriptor */
+    char *fn = (char*) malloc(sizeof(char) * (FNLEN + 1));
     char buf[STRLEN];
     char firstline[STRLEN];
+
+    getfilename(fn);
+    fd = open(fn, O_RDONLY);
 
     if(fd < 0) {	    
 	printf("-1\n");

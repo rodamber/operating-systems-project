@@ -12,8 +12,8 @@ int main(void) {
 
     while(i--) {
 
-	char *fn = getfilename();
-	char *str = getstr();
+	char *fn  = (char*) malloc(sizeof(char) * (STRLEN + 1));
+	char *str = (char*) malloc(sizeof(char) * (FNLEN + 1));
 	int j = TIMES_TO_WRITE;
 	
 	/* 
@@ -29,7 +29,12 @@ int main(void) {
 	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
-	int fd = open(fn, oflags , omodes);
+	int fd; 		/* file descriptor */
+
+	getfilename(fn);
+	getstr(str);
+	
+	fd = open(fn, oflags , omodes);
 
 	/* 
 	 * Return if there was error opening the file.
@@ -44,7 +49,7 @@ int main(void) {
 	     * Return if number of bytes written is not equal to the number
 	     * of bytes to be written.
 	     */
-	    if (write(fd, str, STRLEN + 1) != STRLEN + 1)
+	    if (write(fd, str, STRLEN) != STRLEN)
 		return 1;
 
 	free(str);
