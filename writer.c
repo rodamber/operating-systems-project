@@ -14,7 +14,7 @@
 
 
 
-char *getfile();
+char *getfilename();
 char *getstr();
 
 
@@ -25,17 +25,23 @@ int main(void) {
 
     while(i--) {
 
+	char *fn = getfilename();
+	char *str = getstr();
 	int j = TIMES_TO_WRITE;
 	int oflags = O_WRONLY | O_CREAT;
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
-	int fd = open(getfile(), oflags , omodes);
+	int fd = open(fn, oflags , omodes);
 
 	if (fd < 0)
 	    return 1;
 
+	free(fn);
+
 	while(j--)
-	    if (write(fd, getstr(), STRLEN + 1) != STRLEN + 1)
+	    if (write(fd, str, STRLEN + 1) != STRLEN + 1)
 		return 1;
+
+	free(str);
 
 	if (close(fd) < 0)
 	    return 1;
@@ -44,7 +50,7 @@ int main(void) {
 }
 
 
-char *getfile() {
+char *getfilename() {
     int r = rand() % 5;
     char *file = (char*)malloc(sizeof(char) * 13);
     char *prefix = "SO2014-";
@@ -56,12 +62,12 @@ char *getfile() {
 
     strcpy(file, prefix);
     strcat(file, number);
-    strcat(file, ext);
-
     free(number);
+    strcat(file, ext);
 
     return file;
 }
+
 
 char *getstr() {
     int  r = rand() % STRLEN, i = 0;
