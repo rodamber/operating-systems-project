@@ -5,42 +5,50 @@
 #include "wrrd.h"
 
 
-
 int main(void) {
-    int fd, i = TIMES_TO_WRITE - 1;
-    char *fn = (char*) malloc(sizeof(char) * (FNLEN + 1));
+
+    char fn[FNLEN + 1];
     char buf[STRLEN + 1];
     char firstline[STRLEN + 1];
+    int  i = TIMES_TO_WRITE - 1, fd, n;
 
     getfilename(fn);
-    fd = open(fn, O_RDONLY);
-
-    free(fn);
 
     /* 
-     * Return if there was error opening the file.
+     * Open file. Return if there was an error opening the file.
      */
-    if(fd < 0)	    
-	return -1;
+    if ((fd = open(fn, O_RDONLY)) < 0)
+	return EXIT_FAILURE;
 
-    read(fd, firstline, STRLEN);
+    /* 
+     * Read file. Return if there was an error reading the file. 
+     */
+    if ((read(fd, firstline, STRLEN)) < 0)
+	return EXIT_FAILURE;
 
     firstline[STRLEN] = '\0';
 
-    while(i--) {	
+    while (i--) {
+	/* 
+	 * Read file. Return if there was an error reading the file. 
+	 */
+	if (read(fd, buf, STRLEN) < 0)
+	    return EXIT_FAILURE;
 
-	read(fd, buf, STRLEN);
 	buf[STRLEN] = '\0';
 
-	if(strcmp(buf, firstline) != 0)
-	    return 1;
+	/* 
+	 * Return if not all lines are equal. 
+	 */
+	if (strcmp(buf, firstline))
+	    return EXIT_FAILURE;
     }
 
     /* 
      * Return upon failure to close.
      */
-    if(close(fd) < 0)	    
-	return 1;
+    if (close(fd) < 0)	    
+	return EXIT_FAILURE;
     
-    return 0;
+    return EXIT_SUCCESS;
 }

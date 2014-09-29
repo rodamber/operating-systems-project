@@ -1,5 +1,3 @@
-/* writer.c */
-
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -12,13 +10,13 @@ int main(void) {
 
     while(i--) {
 
-	char *fn  = (char*) malloc(sizeof(char) * (STRLEN + 1));
-	char *str = (char*) malloc(sizeof(char) * (FNLEN + 1));
-	int j = TIMES_TO_WRITE;
+	char fn[STRLEN + 1];
+	char str[FNLEN + 1];
+	int  j = TIMES_TO_WRITE, fd;
 	
 	/* 
 	 * O_WRONLY: Write only.
-	 * O_CREAT: If file doesn't exist, create it.
+	 * O_CREAT:  If file doesn't exist, create it.
 	 */
 	int oflags = O_WRONLY | O_CREAT;
 
@@ -29,37 +27,30 @@ int main(void) {
 	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
-	int fd; 		/* file descriptor */
-
 	getfilename(fn);
-	getstr(str);
-	
-	fd = open(fn, oflags , omodes);
-
-	free(fn);
 
 	/* 
-	 * Return if there was error opening the file.
+	 * Open file.  Return if there was an error opening the file.
 	 */
-	if (fd < 0)
-	    return 1;
+	if ((fd = open(fn, oflags , omodes)) < 0)
+	    return EXIT_FAILURE;
 
-	while(j--)
+	getstr(str);
 
+	while (j--) {
 	    /*
-	     * Return if number of bytes written is not equal to the number
-	     * of bytes to be written.
+	     * Write to file. Return if number of bytes written is not
+	     * equal to the number of bytes to be written.
 	     */
 	    if (write(fd, str, STRLEN) != STRLEN)
-		return 1;
-
-	free(str);
+		return EXIT_FAILURE;
+	}
 
 	/* 
-	 * Return upon failure to close.
+	 * Close file. Return upon failure to close.
 	 */
 	if (close(fd) < 0)
-	    return 1;
+	    return EXIT_FAILURE;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
