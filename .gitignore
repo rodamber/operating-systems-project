@@ -3,9 +3,11 @@
 *~
 *#
 
-# Others
+# Project specific
 *.pdf
 SO*
+rd
+wr
 
 # Object files
 *.o
