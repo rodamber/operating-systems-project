@@ -1,6 +1,8 @@
 #include <fcntl.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "wrrd.h"
 
 
@@ -15,8 +17,8 @@ int main(void) {
 	int  j = TIMES_TO_WRITE, fd;
 	
 	/* 
-	 * O_WRONLY: Write only.
-	 * O_CREAT:  If file doesn't exist, create it.
+	 * O_WRONLY: Open the file so that it is write only.
+	 * O_CREAT:  If the file doesn't exist, create it.
 	 */
 	int oflags = O_WRONLY | O_CREAT;
 

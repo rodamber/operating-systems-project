@@ -1,7 +1,9 @@
 #include <fcntl.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "wrrd.h"
 
 
@@ -16,6 +18,7 @@ int main(void) {
 
     /* 
      * Open file. Return if there was an error opening the file.
+     * O_RDONLY: Open the file so that it is read only.
      */
     if ((fd = open(fn, O_RDONLY)) < 0)
 	return EXIT_FAILURE;
