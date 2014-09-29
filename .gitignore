@@ -5,6 +5,7 @@
 
 # Others
 *.pdf
+SO*
 
 # Object files
 *.o
