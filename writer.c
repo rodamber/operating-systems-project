@@ -3,20 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
-
-
-#define TIMES_TO_CYCLE 5120	/* number of times the whole process on 
-				   writer.c will be done */
-#define TIMES_TO_WRITE 1024	/* number of strings that writer.c will
-				   write*/
-#define STRLEN 10		/* length of the strings to be written */
-
-
-
-char *getfilename();
-char *getstr();
-
+#include "wrrd.h"
 
 
 int main(void) {
@@ -28,57 +15,43 @@ int main(void) {
 	char *fn = getfilename();
 	char *str = getstr();
 	int j = TIMES_TO_WRITE;
+	
+	/* 
+	 * O_WRONLY: Write only.
+	 * O_CREAT: If file doesn't exist, create it.
+	 */
 	int oflags = O_WRONLY | O_CREAT;
+
+	/* 
+	 * S_IRUSR: Set read rights for the owner to true. 
+	 * S_IWUSR: Set write rights for the owner to true.
+	 * S_IROTH: Set read rights for other users to true. 
+	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
+
 	int fd = open(fn, oflags , omodes);
 
+	/* 
+	 * Return if there was error opening the file.
+	 */
 	if (fd < 0)
 	    return 1;
 
 	free(fn);
 
 	while(j--)
+	    /*
+	     * Return if number of bytes written is not equal to the number
+	     * of bytes to be written.
+	     */
 	    if (write(fd, str, STRLEN + 1) != STRLEN + 1)
 		return 1;
 
 	free(str);
 
+	/* Return upon failure to close. */
 	if (close(fd) < 0)
 	    return 1;
     }
     return 0;
-}
-
-
-char *getfilename() {
-    int r = rand() % 5;
-    char *file = (char*)malloc(sizeof(char) * 13);
-    char *prefix = "SO2014-";
-    char *number  = (char*)malloc(sizeof(char) * 2);
-    char *ext = ".txt";
-
-    number[0] = '0' + r;
-    number[1] = '\0';
-
-    strcpy(file, prefix);
-    strcat(file, number);
-    free(number);
-    strcat(file, ext);
-
-    return file;
-}
-
-
-char *getstr() {
-    int  r = rand() % STRLEN, i = 0;
-    char *str = (char*)malloc(sizeof(char) * (STRLEN + 1));
-    char letter = 'a' + r;
-
-    while(i++ < STRLEN - 1)
-	str[i] = letter;
-
-    str[i++] = '\n';
-    str[i] = '\0';
-
-    return str;
 }
