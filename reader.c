@@ -4,40 +4,43 @@
 #include <string.h>
 #include "wrrd.h"
 
-#include <stdio.h>
 
 
 int main(void) {
-    int i = TIMES_TO_WRITE - 1; /*  */
-    int fd; 			/* file descriptor */
+    int fd, i = TIMES_TO_WRITE - 1;
     char *fn = (char*) malloc(sizeof(char) * (FNLEN + 1));
-    char buf[STRLEN];
-    char firstline[STRLEN];
+    char buf[STRLEN + 1];
+    char firstline[STRLEN + 1];
 
     getfilename(fn);
     fd = open(fn, O_RDONLY);
 
-    if(fd < 0) {	    
-	printf("-1\n");
+    free(fn);
+
+    /* 
+     * Return if there was error opening the file.
+     */
+    if(fd < 0)	    
 	return -1;
-    }
 
-    read(fd, firstline, STRLEN + 1);
+    read(fd, firstline, STRLEN);
 
-    while(i--){	
-	read(fd, buf, STRLEN + 1);
-	printf("%s", buf);
-	if(strcmp(buf, firstline) != 0) {
-	    printf("0\n");
+    firstline[STRLEN] = '\0';
+
+    while(i--) {	
+
+	read(fd, buf, STRLEN);
+	buf[STRLEN] = '\0';
+
+	if(strcmp(buf, firstline) != 0)
 	    return 1;
-	}
     }
 
-    if(close(fd) < 0) {	    
-	printf("-1\n");
+    /* 
+     * Return upon failure to close.
+     */
+    if(close(fd) < 0)	    
 	return 1;
-    }
     
-    printf("OK\n");
     return 0;
 }

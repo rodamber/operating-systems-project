@@ -36,15 +36,16 @@ int main(void) {
 	
 	fd = open(fn, oflags , omodes);
 
+	free(fn);
+
 	/* 
 	 * Return if there was error opening the file.
 	 */
 	if (fd < 0)
 	    return 1;
 
-	free(fn);
-
 	while(j--)
+
 	    /*
 	     * Return if number of bytes written is not equal to the number
 	     * of bytes to be written.
@@ -54,7 +55,9 @@ int main(void) {
 
 	free(str);
 
-	/* Return upon failure to close. */
+	/* 
+	 * Return upon failure to close.
+	 */
 	if (close(fd) < 0)
 	    return 1;
     }
