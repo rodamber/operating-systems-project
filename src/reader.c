@@ -9,49 +9,75 @@
 
 int main(void) {
 
-    char fn[FNLEN + 1];
-    char buf[STRLEN + 1];
+    char filename[FNLEN + 1];
+    char line[STRLEN + 1];
     char firstline[STRLEN + 1];
-    int  i = TIMES_TO_WRITE - 1, fd;
+    int  i;
+    int  fdesc; 		/* file descriptor */
+    int  strnum;
 
-    getfile(fn);
+    getfile(filename);
 
-    /* 
+    /*
      * Open file. Return if there was an error opening the file.
+     * 
      * O_RDONLY: Open the file so that it is read only.
      */
-    if ((fd = open(fn, O_RDONLY)) < 0)
-	return EXIT_FAILURE;
+    if ((fdesc = open(filename, O_RDONLY)) < 0) {
+	return -1;
+    }
 
     /* 
      * Read file. Return if there was an error reading the file. 
      */
-    if ((read(fd, firstline, STRLEN)) < 0)
-	return EXIT_FAILURE;
+    if ((read(fdesc, firstline, STRLEN)) < 0) {
+	return -1;
+    }
 
     firstline[STRLEN] = '\0';
 
-    while (i--) {
-	/* 
-	 * Read file. Return if there was an error reading the file. 
-	 */
-	if (read(fd, buf, STRLEN) < 0)
-	    return EXIT_FAILURE;
+    /*
+     * First line must be composed of STRLEN - 1  equal chars between
+     * 'a' and 'j', followed by a newline character, '\n'.
+     */
+    if (strlen(firstline) != STRLEN || firstline[0] < 'a'
+	|| firstline[0] > 'j') {
+ 	return -1;
+    }
+    for (i = 1; i < STRLEN - 1; i++) {
+	if (firstline[i] != firstline[0]) {
+	    return -1;
+	}
+    }
+    if (firstline[STRLEN - 1] != '\n') {
+	return -1;
+    }
 
-	buf[STRLEN] = '\0';
+    /*
+     * Check if all lines are equal. Return if not.
+     */
+    for  (strnum = 0; read(fdesc, line, STRLEN); strnum++) {
+	line[STRLEN] = '\0';
 
-	/* 
-	 * Return if not all lines are equal. 
-	 */
-	if (strcmp(buf, firstline))
-	    return EXIT_FAILURE;
+	if (strcmp(line, firstline)) {
+	    return -1;
+	}
+    }
+
+    /*
+     * Return if there aren't STRNUM valid strings in the file or if there
+     * was an error reading the file.
+     */
+    if (strnum != STRNUM - 1) { /* -1 because the first line was already read */
+	return -1;
     }
 
     /* 
      * Return upon failure to close.
      */
-    if (close(fd) < 0)	    
-	return EXIT_FAILURE;
-    
-    return EXIT_SUCCESS;
+    if (close(fdesc) < 0) {
+	return -1;
+    }
+
+    return 0;
 }

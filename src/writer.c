@@ -1,5 +1,4 @@
 #include <fcntl.h>
-#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -8,13 +7,14 @@
 
 int main(void) {
 
-    int i = TIMES_TO_CYCLE;
+    int i = CYCLENUM;
 
-    while(i--) {
+    while (i--) {
 
-	char fn[STRLEN + 1];
+	char filename[STRLEN + 1];
 	char str[FNLEN + 1];
-	int  j = TIMES_TO_WRITE, fd;
+	int  j = STRNUM;
+	int  fdesc; 		/* file descriptor */
 	
 	/* 
 	 * O_WRONLY: Open the file so that it is write only.
@@ -29,13 +29,14 @@ int main(void) {
 	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
-	getfile(fn);
+	getfile(filename);
 
 	/* 
 	 * Open file.  Return if there was an error opening the file.
 	 */
-	if ((fd = open(fn, oflags , omodes)) < 0)
-	    return EXIT_FAILURE;
+	if ((fdesc = open(filename, oflags , omodes)) < 0) {
+	    return -1;
+	}
 
 	getstr(str);
 
@@ -44,15 +45,17 @@ int main(void) {
 	     * Write to file. Return if number of bytes written is not
 	     * equal to the number of bytes to be written.
 	     */
-	    if (write(fd, str, STRLEN) != STRLEN)
-		return EXIT_FAILURE;
+	    if (write(fdesc, str, STRLEN) != STRLEN) {
+		return -1;
+	    }
 	}
 
 	/* 
 	 * Close file. Return upon failure to close.
 	 */
-	if (close(fd) < 0)
-	    return EXIT_FAILURE;
+	if (close(fdesc) < 0) {
+	    return -1;
+	}
     }
-    return EXIT_SUCCESS;
+    return 0;
 }
