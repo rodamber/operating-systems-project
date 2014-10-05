@@ -1,6 +1,8 @@
 #include <fcntl.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include "wrrd.h"
 
@@ -9,11 +11,17 @@ int main(void) {
 
     int i = CYCLENUM;
 
+    /*
+     * Set a seed for use by rand() inside getfile() and getstr().
+     * See documentation in wrrd.h .
+     */
+    srand(time(NULL));
+
     while (i--) {
 
 	char filename[STRLEN + 1];
 	char str[FNLEN + 1];
-	int  j = STRNUM;
+	int  strn = STRNUM;
 	int  fdesc; 		/* file descriptor */
 	
 	/* 
@@ -40,7 +48,7 @@ int main(void) {
 
 	getstr(str);
 
-	while (j--) {
+	while (strn--) {
 	    /*
 	     * Write to file. Return if number of bytes written is not
 	     * equal to the number of bytes to be written.

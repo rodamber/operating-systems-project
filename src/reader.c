@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include "wrrd.h"
 
@@ -14,7 +15,13 @@ int main(void) {
     char firstline[STRLEN + 1];
     int  i;
     int  fdesc; 		/* file descriptor */
-    int  strnum;
+    int  strn;
+
+    /*
+     * Set a seed for use by rand() inside getfile().
+     * See documentation in wrrd.h .
+     */
+    srand(time(NULL));
 
     getfile(filename);
 
@@ -56,7 +63,7 @@ int main(void) {
     /*
      * Check if all lines are equal. Return if not.
      */
-    for  (strnum = 0; read(fdesc, line, STRLEN); strnum++) {
+    for  (strn = 0; read(fdesc, line, STRLEN); strn++) {
 	line[STRLEN] = '\0';
 
 	if (strcmp(line, firstline)) {
@@ -68,7 +75,7 @@ int main(void) {
      * Return if there aren't STRNUM valid strings in the file or if there
      * was an error reading the file.
      */
-    if (strnum != STRNUM - 1) { /* -1 because the first line was already read */
+    if (strn != STRNUM - 1) { /* -1 because the first line was already read */
 	return -1;
     }
 
