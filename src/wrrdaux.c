@@ -1,3 +1,11 @@
+/*
+ * Identification
+ *
+ * 78294  José Semedo
+ * 78471  João Marçal
+ * 78942  Rodrigo Bernardo
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include "wrrd.h"

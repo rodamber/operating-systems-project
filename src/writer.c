@@ -1,3 +1,11 @@
+/*
+ * Identification
+ *
+ * 78294  José Semedo
+ * 78471  João Marçal
+ * 78942  Rodrigo Bernardo
+ */
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/stat.h>

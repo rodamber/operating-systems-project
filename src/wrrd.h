@@ -1,3 +1,11 @@
+/*
+ * Identification
+ *
+ * 78294  José Semedo
+ * 78471  João Marçal
+ * 78942  Rodrigo Bernardo
+ */
+
 #ifndef __WRRD_H__
 #define __WRRD_H__
 
