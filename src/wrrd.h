@@ -9,14 +9,16 @@
 
 
 /* 
- * Returns a string of type "SO2014-X.txt", where X is a random integer
- * between 0 and FILENUM.
+ * dst will point to a string like "SO2014-X.txt", where X is a random integer
+ * between 0 and FILENUM. Uses the rand() function, so maybe you'll want to
+ * set a seed using srand().
  */
 void getfile(char *dst);
 
 /* 
- * Returns a STRLEN sized character string composed of STRLEN - 1 equal 
- * characters between 'a' and 'a' + STRLEN plus a '\n'.
+ * dst will point to a STRLEN sized string composed of STRLEN - 1  equal
+ * characters between 'a' and 'a' + STRLEN plus a '\n'. Uses the rand()
+ * function, so maybe you'll want to set a seed using srand().
  */
 void getstr(char *dst);
 
