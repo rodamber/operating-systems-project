@@ -2,7 +2,7 @@
  * Identification
  *
  * Group  24
- * 
+ *
  * 78294  José Semedo
  * 78471  João Marçal
  * 78942  Rodrigo Bernardo
@@ -37,14 +37,14 @@ int main(void) {
 
     /*
      * Open file. Return if there was an error opening the file.
-     * 
+     *
      * O_RDONLY: Open the file so that it is read only.
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
 	return -1;
     }
 
-    /* 
+    /*
      * Read file. Return if there was an error reading the file. 
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
@@ -89,7 +89,7 @@ int main(void) {
 	return -1;
     }
 
-    /* 
+    /*
      * Return upon failure to close.
      */
     if (close(fdesc) < 0) {

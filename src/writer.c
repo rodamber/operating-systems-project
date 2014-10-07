@@ -2,7 +2,7 @@
  * Identification
  *
  * Group  24
- * 
+ *
  * 78294  José Semedo
  * 78471  João Marçal
  * 78942  Rodrigo Bernardo
@@ -33,23 +33,23 @@ int main(void) {
 	char str[FNLEN + 1];
 	int  strn = STRNUM;
 	int  fdesc; 		/* file descriptor */
-	
-	/* 
+
+	/*
 	 * O_WRONLY: Open the file so that it is write only.
 	 * O_CREAT:  If the file doesn't exist, create it.
 	 */
 	int oflags = O_WRONLY | O_CREAT;
 
-	/* 
-	 * S_IRUSR: Set read rights for the owner to true. 
+	/*
+	 * S_IRUSR: Set read rights for the owner to true.
 	 * S_IWUSR: Set write rights for the owner to true.
-	 * S_IROTH: Set read rights for other users to true. 
+	 * S_IROTH: Set read rights for other users to true.
 	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
 	getfile(filename);
 
-	/* 
+	/*
 	 * Open file.  Return if there was an error opening the file.
 	 */
 	if ((fdesc = open(filename, oflags , omodes)) < 0) {
@@ -68,7 +68,7 @@ int main(void) {
 	    }
 	}
 
-	/* 
+	/*
 	 * Close file. Return upon failure to close.
 	 */
 	if (close(fdesc) < 0) {
