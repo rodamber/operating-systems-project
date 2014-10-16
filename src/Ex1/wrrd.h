@@ -32,4 +32,7 @@ void getfile(char *dst);
  */
 void getstr(char *dst);
 
+int corrige(const char * filename);
+
+
 #endif

@@ -9,6 +9,7 @@
  */
 
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -34,7 +35,8 @@ int main(void) {
     srand(time(NULL));
 
     getfile(filename);
-
+    printf("Checking %s...\n", filename);
+    
     /*
      * Open file. Return if there was an error opening the file.
      *
@@ -59,15 +61,22 @@ int main(void) {
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a'
 	|| firstline[0] > 'j') {
- 	return -1;
+
+	printf("%s is wrong. Correcting file...\n", filename);
+	if (close(fdesc) < 0) return -1;
+	return corrige(filename);
     }
     for (i = 1; i < STRLEN - 1; i++) {
 	if (firstline[i] != firstline[0]) {
-	    return -1;
+	    printf("%s is wrong. Correcting file...\n", filename);
+	    if (close(fdesc) < 0) return -1;
+	    return corrige(filename);
 	}
     }
     if (firstline[STRLEN - 1] != '\n') {
-	return -1;
+	printf("%s is wrong. Correcting file...\n", filename);
+	if (close(fdesc) < 0) return -1;
+	return corrige(filename);
     }
 
     /*
@@ -77,7 +86,9 @@ int main(void) {
 	line[STRLEN] = '\0';
 
 	if (strcmp(line, firstline)) {
-	    return -1;
+	    printf("%s is wrong. Correcting file...\n", filename);
+	    if (close(fdesc) < 0) return -1;
+	    return corrige(filename);
 	}
     }
 
@@ -86,7 +97,9 @@ int main(void) {
      * was an error reading the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-	return -1;
+	printf("%s is wrong. Correcting file...\n", filename);
+	if (close(fdesc) < 0) return -1;
+	return corrige(filename);
     }
 
     /*
