@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -13,30 +14,42 @@ int main(void) {
     int i;
     int nb_forks = 0;		/* stores number of child processes created */
     int status = 0;
-    time_t start = time(NULL);
+
+    struct timeval tvstart;	/* beggining date */
+    struct timeval tvend;	/* ending date */
+    struct timeval tvduration;	/* date difference */
+    double duration; /* date difference in microsseconds */
+
+    gettimeofday(&tvstart, NULL);
 
     printf("Creating child processes...\n");
     for(i = 0; i < NB_CHILDS; i++) {
 	pid_t pID = fork();
 
 	if (pID == 0) {
-	    nb_forks++;
 	    execl("../Ex1/wr", NULL);
             exit(0);
-	    /* chamar exit ou nao chamar exit, eis a questao... */
 	}
 	else if (pID < 0) {
 	    printf("Failed to fork!\n");
 	}
+	else {
+	    nb_forks++;
+	}
     }
 
     printf("Waiting for childs to finish...\n");
-    for(i = 0; i < NB_CHILDS; i++) {
+    for(i = 0; i < nb_forks; i++) {
 	wait(&status);
-	/* verificar o status? */
     }
 
-    printf("Finished. Time: ~%ds\n", (int)(time(NULL) - start));
-    /* a ideia e por isto a dar com precisao de milisegundos. nao tentem fazer cast para double ou float, nao vai funcionar */
+    gettimeofday(&tvend, NULL);
+
+    /* calculate and print date difference */
+    tvduration.tv_sec = tvend.tv_sec - tvstart.tv_sec;
+    tvduration.tv_usec = tvend.tv_usec - tvstart.tv_usec;
+    duration = tvduration.tv_sec * 1000000 + tvduration.tv_usec;
+    printf("Finished.\nDuration: %.3fs\n", duration / 1000000);
+
     return 0;
 }
