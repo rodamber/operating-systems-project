@@ -27,7 +27,7 @@ int main(void) {
 	pid_t pID = fork();
 
 	if (pID == 0) {
-	    execl("../Ex1/wr", NULL);
+	    execl("../Ex1/wr", "wr", (char*) NULL);
             exit(0);
 	}
 	else if (pID < 0) {
