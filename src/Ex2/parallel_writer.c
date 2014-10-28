@@ -20,14 +20,18 @@ int main(void) {
     struct timeval tvduration;	/* date difference */
     double duration; /* date difference in microsseconds */
 
-    gettimeofday(&tvstart, NULL);
+    if (gettimeofday(&tvstart, NULL)) {
+	return -1;
+    }
 
     printf("Creating child processes...\n");
     for(i = 0; i < NB_CHILDS; i++) {
 	pid_t pID = fork();
 
 	if (pID == 0) {
-	    execl("../Ex1/wr", "wr", (char*) NULL);
+	    if (execl("../Ex1/wr", "wr", (char*) NULL) < 0) {
+		return -1;
+	    }
             exit(0);
 	}
 	else if (pID < 0) {
