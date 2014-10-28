@@ -8,8 +8,11 @@
  * 78942  Rodrigo Bernardo
  */
 
+#include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
@@ -56,6 +59,11 @@ int main(void) {
 	    return -1;
 	}
 
+        if (flock(fdesc, LOCK_EX) < 0) {
+	    perror("Error locking file");
+	    return -1;
+        }
+
 	getstr(str);
 
 	while (strn--) {
@@ -66,6 +74,10 @@ int main(void) {
 	    if (write(fdesc, str, STRLEN) != STRLEN) {
 		return -1;
 	    }
+	}
+
+	if (flock(fdesc, LOCK_UN) < 0) {
+	    perror("Error unlocking file");
 	}
 
 	/*

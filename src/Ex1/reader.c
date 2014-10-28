@@ -36,7 +36,7 @@ int main(void) {
 
     getfile(filename);
     printf("Checking %s...\n", filename);
-    
+
     /*
      * Open file. Return if there was an error opening the file.
      *
@@ -46,8 +46,13 @@ int main(void) {
 	return -1;
     }
 
+    if (flock(fdesc, LOCK_SH) < 0) {
+	perror("Error locking file");
+	return -1;
+    }
+
     /*
-     * Read file. Return if there was an error reading the file. 
+     * Read file. Return if there was an error reading the file.
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
 	return -1;
@@ -102,6 +107,11 @@ int main(void) {
 	return corrige(filename);
     }
 
+
+    if (flock(fdesc, LOCK_UN) < 0) {
+	perror("Error unlocking file");
+    }
+
     /*
      * Return upon failure to close.
      */
@@ -109,5 +119,6 @@ int main(void) {
 	return -1;
     }
 
+    printf("File is correct.\n");
     return 0;
 }
