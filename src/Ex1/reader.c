@@ -43,6 +43,7 @@ int main(void) {
      * O_RDONLY: Open the file so that it is read only.
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
+	perror("Error opening file");
 	return -1;
     }
 
@@ -55,6 +56,7 @@ int main(void) {
      * Read file. Return if there was an error reading the file.
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
+	perror("Error reading file");
 	return -1;
     }
 
@@ -116,6 +118,7 @@ int main(void) {
      * Return upon failure to close.
      */
     if (close(fdesc) < 0) {
+	perror("Error closing file");
 	return -1;
     }
 
