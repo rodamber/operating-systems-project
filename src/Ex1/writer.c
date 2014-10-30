@@ -56,6 +56,7 @@ int main(void) {
 	 * Open file.  Return if there was an error opening the file.
 	 */
 	if ((fdesc = open(filename, oflags , omodes)) < 0) {
+	    perror("Error opening file");
 	    return -1;
 	}
 
@@ -72,6 +73,7 @@ int main(void) {
 	     * equal to the number of bytes to be written.
 	     */
 	    if (write(fdesc, str, STRLEN) != STRLEN) {
+		perror("Error writing file");
 		return -1;
 	    }
 	}
@@ -84,6 +86,7 @@ int main(void) {
 	 * Close file. Return upon failure to close.
 	 */
 	if (close(fdesc) < 0) {
+	    perror("Error closing file");
 	    return -1;
 	}
     }
