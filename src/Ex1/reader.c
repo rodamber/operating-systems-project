@@ -35,7 +35,6 @@ int main(void) {
     srand(time(NULL));
 
     getfile(filename);
-    printf("Checking %s...\n", filename);
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -46,6 +45,8 @@ int main(void) {
 	perror("Error opening file");
 	return -1;
     }
+
+    printf("Checking %s...\n", filename);
 
     if (flock(fdesc, LOCK_SH) < 0) {
 	perror("Error locking file");
