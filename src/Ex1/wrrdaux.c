@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -58,7 +59,12 @@ int corrige(const char * filename) {
     /* Abre o ficheiro para leitura */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
 	return -1;
-    } 
+    }
+
+    if (flock(fdesc, LOCK_EX) < 0) {
+	perror("Error opening file");
+	return -1;
+    }
 
     /* Le o primeiro caracter do ficheiro  */
     if (read(fdesc, firstline, 1) < 0) {
@@ -82,13 +88,17 @@ int corrige(const char * filename) {
     /* Abrir o ficheiro para escrita */
     if ((fdesc = open(filename, O_WRONLY)) < 0) {
 	return -1;
-    } 
+    }
 
     /* Escrever a firstline no ficheiro STRNUM vezes */
     for (i = 0; i < STRNUM; i++) {
 	if (write(fdesc, firstline, STRLEN) != STRLEN) {
 	    return -1;
 	}
+    }
+
+    if (flock(fdesc, LOCK_UN) < 0) {
+	perror("Error unlocking file");
     }
 
     /* Fechar o ficheiro */
