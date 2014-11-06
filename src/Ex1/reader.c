@@ -20,22 +20,26 @@
 #include "wrrd.h"
 
 
-int main(void) {
+int main(int argc, char **argv) {
 
     char filename[FNLEN + 1];
     char line[STRLEN + 1];
     char firstline[STRLEN + 1];
     int  i;
-    int  fdesc; 		/* file descriptor */
+    int  fdesc;     /* file descriptor */
     int  strn;
 
-    /*
-     * Set a seed for use by rand() inside getfile().
-     * See documentation in wrrd.h .
-     */
-    srand(time(NULL));
-
-    getfile(filename);
+    if (argc == 2) {
+        /*
+         * Set a seed for use by rand() inside getfile().
+         * See documentation in wrrd.h .
+         */
+        srand(time(NULL));
+        getfile(filename, 0);
+    }
+    else {
+        getfile(filename, (int) (*argv[1]));
+    }
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -43,23 +47,23 @@ int main(void) {
      * O_RDONLY: Open the file so that it is read only.
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
-	perror("Error opening file");
-	return -1;
+        perror("Error opening file");
+        return -1;
     }
 
     printf("Checking %s...\n", filename);
 
     if (flock(fdesc, LOCK_SH) < 0) {
-	perror("Error locking file");
-	return -1;
+        perror("Error locking file");
+        return -1;
     }
 
     /*
      * Read file. Return if there was an error reading the file.
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
-	perror("Error reading file");
-	return -1;
+        perror("Error reading file");
+        return -1;
     }
 
     firstline[STRLEN] = '\0';
@@ -69,19 +73,19 @@ int main(void) {
      * 'a' and 'j', followed by a newline character, '\n'.
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a'
-	|| firstline[0] > 'j') {
+                                    || firstline[0] > 'j') {
 
-	printf("%s is wrong. Correcting file...\n", filename);
-	if (close(fdesc) < 0) return -1;
-	return corrige(filename);
+    printf("%s is wrong. Correcting file...\n", filename);
+    if (close(fdesc) < 0) return -1;
+        return corrige(filename);
     }
     for (i = 1; i < STRLEN - 1; i++) {
-	if (firstline[i] != firstline[0]) {
-	    printf("%s is wrong. Correcting file...\n", filename);
-	    if (close(fdesc) < 0) return -1;
-	    return corrige(filename);
-	}
+        if (firstline[i] != firstline[0]) {
+            printf("%s is wrong. Correcting file...\n", filename);
+            if (close(fdesc) < 0) return -1;
+            return corrige(filename);
     }
+}
     if (firstline[STRLEN - 1] != '\n') {
 	printf("%s is wrong. Correcting file...\n", filename);
 	if (close(fdesc) < 0) return -1;

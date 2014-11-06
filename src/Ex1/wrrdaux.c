@@ -19,15 +19,16 @@
 #include "wrrd.h"
 
 
-void getfile(char *dst) {
-    int r;
+void getfile(char *dst, int n) {
     char *prefix = "SO2014-";
     char number[2];
     char *ext = ".txt";
 
-    r = rand() % FILENUM;
+    if (n == 0) {
+        n = rand() % FILENUM;
+    }
 
-    number[0] = '0' + r;
+    number[0] = '0' + n;
     number[1] = '\0';
 
     strcpy(dst, prefix);

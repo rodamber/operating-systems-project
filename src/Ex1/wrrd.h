@@ -22,8 +22,9 @@
  * dst will point to a string like "SO2014-X.txt", where X is a random integer
  * between 0 and FILENUM. Uses the rand() function, so maybe you'll want to
  * set a seed using srand().
+ * If n is specified, then X becomes equal to n.
  */
-void getfile(char *dst);
+void getfile(char *dst, int n);
 
 /*
  * dst will point to a STRLEN sized string composed of STRLEN - 1  equal
