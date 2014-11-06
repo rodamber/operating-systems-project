@@ -5,7 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define NB_CHILDS 3
+#define NB_CHILDS       3
 
 /* TODO: passar valor aleatorio ao execl */
 
@@ -20,8 +20,8 @@ int main(void) {
         pid_t pid = fork();
 
         if (pid == 0) {
-            if (execl("../Ex1/rd", "rd", i, (char*) NULL) < 0) {
-                perror("Error executing reader");
+            if (execl("../Ex1/rd", "rd", "0"+i+1, (char*) NULL) < 0) {
+                perror("Error executing rd");
                 exit(-1);
             }
             exit(0);
