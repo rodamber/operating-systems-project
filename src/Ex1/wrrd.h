@@ -24,7 +24,7 @@
  * set a seed using srand().
  * If n is specified, then X becomes equal to n.
  */
-void getfile(char *dst, int n);
+void getfile(char *dst, char n);
 
 /*
  * dst will point to a STRLEN sized string composed of STRLEN - 1  equal

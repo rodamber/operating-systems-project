@@ -30,15 +30,15 @@ int main(int argc, char **argv) {
     int  strn;
 
     if (argc == 2) {
+        getfile(filename, *argv[1]);
+    }
+    else {
         /*
          * Set a seed for use by rand() inside getfile().
          * See documentation in wrrd.h .
          */
         srand(time(NULL));
-        getfile(filename, 0);
-    }
-    else {
-        getfile(filename, (int) (*argv[1]));
+        getfile(filename, -1);
     }
 
     /*
@@ -128,6 +128,6 @@ int main(int argc, char **argv) {
 	return -1;
     }
 
-    printf("File is correct.\n");
+    printf("%s is correct.\n", filename);
     return 0;
 }

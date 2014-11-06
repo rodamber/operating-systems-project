@@ -4,23 +4,27 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#include "../Ex1/wrrd.h"
 
-#define NB_CHILDS       3
+#define NB_CHILDS 3
 
-/* TODO: passar valor aleatorio ao execl */
 
 int main(void) {
 
     int i;
     int nb_forks = 0;   /* stores number of childs processes created */
     int status = 0;
+    char arg;
+
+    srand(time(NULL));
 
     printf("Creating child processes...\n");
     for(i = 0; i < NB_CHILDS; i++) {
         pid_t pid = fork();
+        arg = '0' + rand() % FILENUM;
 
         if (pid == 0) {
-            if (execl("../Ex1/rd", "rd", "0"+i+1, (char*) NULL) < 0) {
+            if (execl("../Ex1/rd", "rd", &arg, (char*) NULL) < 0) {
                 perror("Error executing rd");
                 exit(-1);
             }
