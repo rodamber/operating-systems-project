@@ -9,5 +9,5 @@ parallel_writer1.o: parallel_writer1.c
 	gcc ${CFLAGS} -c -g parallel_writer1.c
 
 clean:
-	rm -r *.o p_rd1
+	rm -f *.o p_rd1
 
