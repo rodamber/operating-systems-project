@@ -11,6 +11,9 @@ SO*
 rd
 wr
 p_wr
+p_rd1
+p_rd2
+p_rd3
 
 # Object files
 *.o
@@ -28,3 +31,5 @@ p_wr
 .DS_Store
 .Trashes
 
+# vim
+# *.swp
