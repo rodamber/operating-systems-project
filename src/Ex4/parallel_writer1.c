@@ -28,7 +28,6 @@ int main(void) {
                 perror("Error executing rd");
                 exit(-1);
             }
-            exit(0);
         }
         else if (pid < 0) {
             perror("Failed to fork process");
