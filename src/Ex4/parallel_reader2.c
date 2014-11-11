@@ -15,19 +15,29 @@
 void* reader(void* argv);
 
 int main(void) {
-    pthread_t* my_t;
+    int i;
+    int r;
+    pthread_t my_t[NB_THREADS];
 
     srand(time(NULL));
+    r = rand() % FILENUM;
 
     for (i = 0; i < NB_THREADS; ++i) {
-        if (pthread_create(&(my_t[i]), NULL, &reader, (void*)(rand() % FILENUM < 0))) {
-            perror("Error creating thread");
+        if (pthread_create(&my_t[i], NULL, &reader, (void*)&r)) {
+            fprintf(stderr, "Error creating thread %d", i);
             exit(-1);
         }
     }
-
-
-
+/*
+    for (i = 0; i < NB_THREADS; ++i) {
+        void** return_value = NULL;
+        if (pthread_join(my_t[i], return_value)) {
+            fprintf(stderr, "Error joining thread %d", i);
+            exit(-1);
+        }
+        printf("Thread %d finished and returned %d", i, *(int*)return_value);
+    }
+*/
     return 0;
 }
 void* reader(void* argv) {

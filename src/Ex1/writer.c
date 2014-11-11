@@ -50,7 +50,7 @@ int main(void) {
 	 */
 	int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
-	getfile(filename, 0);
+	getfile(filename, -1);
 
 	/*
 	 * Open file.  Return if there was an error opening the file.
