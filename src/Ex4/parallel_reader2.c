@@ -37,7 +37,7 @@ int main(void) {
             fprintf(stderr, "Error joining thread %d", i);
             exit(-1);
         }
-        //FIXME: se fizer *(int*)return_value da seg fault
+        /* FIXME: se fizer *(int*)return_value da seg fault */
         printf("Thread %d finished and returned %d.\n", i, (int)return_value);
     }
 
