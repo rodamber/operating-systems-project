@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -16,28 +17,30 @@ void* reader(void* argv);
 
 int main(void) {
     int i;
-    int r;
+    int n;
     pthread_t my_t[NB_THREADS];
 
     srand(time(NULL));
-    r = rand() % FILENUM;
+    n = '0' + rand() % FILENUM;
 
     for (i = 0; i < NB_THREADS; ++i) {
-        if (pthread_create(&my_t[i], NULL, &reader, (void*)&r)) {
-            fprintf(stderr, "Error creating thread %d", i);
+        /* FIXME: Alterar isto para enviar o nome do ficheiro como parametro em vez de o random. Alterar makefile (wrrdaux) */
+        if (pthread_create(&my_t[i], NULL, &reader, (void*)&n)) {
+            fprintf(stderr, "Error creating thread %d: %s\n", i, strerror(errno));
             exit(-1);
         }
     }
-/*
+
     for (i = 0; i < NB_THREADS; ++i) {
-        void** return_value = NULL;
-        if (pthread_join(my_t[i], return_value)) {
+        void* return_value = NULL;
+        if (pthread_join(my_t[i], &return_value)) {
             fprintf(stderr, "Error joining thread %d", i);
             exit(-1);
         }
-        printf("Thread %d finished and returned %d", i, *(int*)return_value);
+        //FIXME: se fizer *(int*)return_value da seg fault
+        printf("Thread %d finished and returned %d.\n", i, (int)return_value);
     }
-*/
+
     return 0;
 }
 void* reader(void* argv) {
