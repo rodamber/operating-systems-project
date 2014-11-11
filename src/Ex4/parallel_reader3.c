@@ -1,6 +1,23 @@
+#include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
-#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/file.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+#include "../Ex1/wrrd.h"
+
+/*
+ *  FIXME: Quem escreveu este código deve querer ser kickado, só pode... PLOX
+ *                               |
+ *                               |
+ *                               |
+ *                               v
+ */
 
 int thread_maker (int  nbThreads){
 
@@ -8,6 +25,7 @@ int thread_maker (int  nbThreads){
   pthread_t thread_list[nbThreads];
   int nb_lines = 1024/k; /* pode ser a causa de algum erro care ss*/
   int i = 0;
+
   void ** return_values[nbThreads];
   
   char filename[FNLEN + 1];
@@ -16,15 +34,19 @@ int thread_maker (int  nbThreads){
   
   printf("Os threads vao executar sobre o ficheiro: %s\n", &filename);
 
+  void ** return_values[nbThreads]; 
+
   for( ; i < nbThreads-1; i++){
     thread_id_list[i] = pthread_create ( &thread_list[i], NULL, &reader, (void *) &/*fd*/, (void*) &(i*nb_lines), (void*) &(nb_lines), (void*) &filename );
   }
   /*last thread made can have different number of lines to read, thus a separate case is needed*/
   thread_id_list[nbThreads-1] = pthread_create ( &thread_list[i], NULL, &reader, (void *) &/*fd*/, (void*) &(i*nb_lines), (void*) &( 1024 -(nb_lines*(i - 1))), (void*) &filename);
   
+  thread_id_list[nbThreads-1] = pthread_creat ( &thread_list[i], NULL, (void*) &/*FIX ME*/, (void *) &/*fd*/, (void*) &(i*nb_lines), (void*) &( 1024 -(nb_lines*(i - 1))));
+
 
   for(i=0; i < nbThread; i++){
-    
+
     pthread_join (thread_list[i], return_values[i]);
   }
 
