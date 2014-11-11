@@ -1,3 +1,7 @@
+/*
+ * Todos os FIXME deste código são para perguntar ao professor Rodrigo Bruno,
+ * amanhã, quarta-feira, ao meio-dia e meia. Não alterem nada, por favor.
+ */
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -24,7 +28,10 @@ int main(void) {
 
     for (i = 0; i < NB_THREADS; ++i) {
         n = '0' + rand() % FILENUM;
-        /* FIXME: Alterar isto para enviar o nome do ficheiro como parametro em vez de o random. Alterar makefile (wrrdaux) */
+        /* FIXME: Alterar isto para enviar o nome do ficheiro como parametro em
+         * vez de o random. Alterar makefile (wrrdaux). Ver FIXME na função
+         * reader.
+         */
         if (pthread_create(&my_t[i], NULL, &reader, (void*)&n)) {
             fprintf(stderr, "Error creating thread %d: %s\n", i, strerror(errno));
             return -1;
@@ -43,6 +50,7 @@ int main(void) {
     return 0;
 }
 
+/* FIXME: Tendo em conta o enunciado, que parâmetro dever mesmo passado aqui? */
 void* reader(void* arg) {
 
     char filename[FNLEN + 1];
