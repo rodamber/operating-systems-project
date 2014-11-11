@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,10 +8,9 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include "wrrd.h"
+#include "../Ex1/wrrd.h"
 
-
-int main(int argc, char **argv) {
+void* reader(void* argv) {
 
     char filename[FNLEN + 1];
     char line[STRLEN + 1];
@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
     int  fdesc;     /* file descriptor */
     int  strn;
 
-    if (argc == 2) {
-        getfile(filename, *argv[1]);
+    if (((int*)argv)[0] == 2) {
+        getfile(filename, ((int*)argv)[1]);
     }
     else {
         /*
@@ -38,14 +38,14 @@ int main(int argc, char **argv) {
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
         perror("Error opening file");
-        return -1;
+        exit(-1);
     }
 
     printf("Checking %s...\n", filename);
 
     if (flock(fdesc, LOCK_SH) < 0) {
         perror("Error locking file");
-        return -1;
+        exit(-1);
     }
 
     /*
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
         perror("Error reading file");
-        return -1;
+        exit(-1);
     }
 
     firstline[STRLEN] = '\0';
@@ -64,35 +64,28 @@ int main(int argc, char **argv) {
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a'
                                     || firstline[0] > 'j') {
-
-    printf("%s is wrong. Correcting file...\n", filename);
-    if (close(fdesc) < 0) return -1;
-        return corrige(filename);
+        exit(-1);
     }
+
     for (i = 1; i < STRLEN - 1; i++) {
         if (firstline[i] != firstline[0]) {
-            printf("%s is wrong. Correcting file...\n", filename);
-            if (close(fdesc) < 0) return -1;
-            return corrige(filename);
+            exit(-1);
+        }
     }
-}
+
     if (firstline[STRLEN - 1] != '\n') {
-	printf("%s is wrong. Correcting file...\n", filename);
-	if (close(fdesc) < 0) return -1;
-	return corrige(filename);
+        exit(-1);
     }
 
     /*
      * Check if all lines are equal. Return if not.
      */
     for  (strn = 0; read(fdesc, line, STRLEN); strn++) {
-	line[STRLEN] = '\0';
+        line[STRLEN] = '\0';
 
-	if (strcmp(line, firstline)) {
-	    printf("%s is wrong. Correcting file...\n", filename);
-	    if (close(fdesc) < 0) return -1;
-	    return corrige(filename);
-	}
+        if (strcmp(line, firstline)) {
+            exit(-1);
+        }
     }
 
     /*
@@ -100,22 +93,20 @@ int main(int argc, char **argv) {
      * was an error reading the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-	printf("%s is wrong. Correcting file...\n", filename);
-	if (close(fdesc) < 0) return -1;
-	return corrige(filename);
+        exit(-1);
     }
 
-
     if (flock(fdesc, LOCK_UN) < 0) {
-	perror("Error unlocking file");
+        perror("Error unlocking file");
+        exit(-1);
     }
 
     /*
      * Return upon failure to close.
      */
     if (close(fdesc) < 0) {
-	perror("Error closing file");
-	return -1;
+        perror("Error closing file");
+        exit(-1);
     }
 
     printf("%s is correct.\n", filename);
