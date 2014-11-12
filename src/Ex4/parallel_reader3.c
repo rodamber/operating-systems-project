@@ -11,60 +11,69 @@
 #include <unistd.h>
 #include "../Ex1/wrrd.h"
 
-/*
- *  FIXME: Falar daquilo dos mutex e da variavel que permite ver se o ficheiro esta
- *  escrito apenas por um tipo de letra
- *
- */
+#define NB_THREADS  3
 
-int thread_maker (int  nbThreads){
+typedef struct {
+    char file_index;
+    int  start;
+    int  end;
+    int  return_value;
+} thread_info;
 
-  int thread_id_list[nbThreads];
-  pthread_t thread_list[nbThreads];
-  int nb_lines = 1024/k; /* pode ser a causa de algum erro care ss*/
-  int i = 0;
+void* reader(void* arg);
 
-  void ** return_values[nbThreads];
-  
-  char filename[FNLEN + 1];
-  
-  getfile(filename);
-  
-  printf("Os threads vao executar sobre o ficheiro: %s\n", &filename);
+int main(void) {
+    int i;
+    char n  = '0' + rand() % FILENUM;
+    int nb_lines = STRNUM / NB_THREADS;
+    pthread_t my_t[NB_THREADS];
+    thread_info reader_info_v[NB_THREADS];
 
-  void ** return_values[nbThreads]; 
+    for (i = 0; i < NB_THREADS; ++i) {
+        reader_info_v[i].return_value = -1;
+    }
 
-  for( ; i < nbThreads-1; i++){
-    thread_id_list[i] = pthread_create ( &thread_list[i], NULL, &reader, (void *) &/*fd*/, (void*) &(i*nb_lines), (void*) &(nb_lines), (void*) &filename );
-  }
-  /*last thread made can have different number of lines to read, thus a separate case is needed*/
-  thread_id_list[nbThreads-1] = pthread_create ( &thread_list[i], NULL, &reader, (void *) &/*fd*/, (void*) &(i*nb_lines), (void*) &( 1024 -(nb_lines*(i - 1))), (void*) &filename);
-  
-  thread_id_list[nbThreads-1] = pthread_creat ( &thread_list[i], NULL, (void*) &/*FIX ME*/, (void *) &/*fd*/, (void*) &(i*nb_lines), (void*) &( 1024 -(nb_lines*(i - 1))));
+    srand(time(NULL));
 
+    for (i = 0; i < NB_THREADS; ++i) {
+        reader_info_v[i].file_index = n;
+        reader_info_v[i].start      = i * nb_lines;
 
-  for(i=0; i < nbThread; i++){
+        /*
+         * Last thread reads the file until the end.
+         */
+        if (i == NB_THREADS - 1) {
+            reader_info_v[i].end = STRNUM;
+        }
 
-    pthread_join (thread_list[i], return_values[i]);
-  }
-
-  for(i=0; i < nbThread; i++){
-    if ( *(int*) return_values[i] != 0){
-      printf("o thread %d deu treta, comeca a ler na linha %d", i+1, (i*nb_lines));
-      return -1;
+        if (pthread_create(&my_t[i], NULL, &reader, (void*) &reader_info_v[i])) {
+            fprintf(stderr, "Error creating thread %d: %s\n", i, strerror(errno));
+            return -1;
+        }
+    }
+    for (i = 0; i < NB_THREADS; ++i) {
+        if (pthread_join(my_t[i], (void**) &reader_info_v[i])) {
+            fprintf(stderr, "Error joining thread %d: %s\n", i, strerror(errno));
+            return -1;
+        }
+        printf("Thread %d finished and returned %d.\n", i,
+                 reader_info_v[i].return_value);
     }
     return 0;
-  }
+}
 
+void* reader(void* arg) {
 
-
-void* reader(void* argv) {
-
+    char filename[FNLEN + 1];
     char line[STRLEN + 1];
     char firstline[STRLEN + 1];
     int  i;
-    int  fdesc;     /* file descriptor */
+    int  start = ((thread_info*) arg)->start;
+    int  end   = ((thread_info*) arg)->end;
+    int  fdesc;          /* file descriptor */
     int  strn;
+
+    getfile(filename, ((thread_info*) arg)->file_index);
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -73,22 +82,22 @@ void* reader(void* argv) {
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
         perror("Error opening file");
-        exit(-1);
+        return arg;
     }
 
     printf("Checking %s...\n", filename);
 
     if (flock(fdesc, LOCK_SH) < 0) {
         perror("Error locking file");
-        exit(-1);
+        return arg;
     }
 
     /*
-     * Read file. Return if there was an error reading the file.
+     * Read first line of the file. Return if there was an error reading the file.
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
         perror("Error reading file");
-        exit(-1);
+        return arg;
     }
 
     firstline[STRLEN] = '\0';
@@ -99,25 +108,36 @@ void* reader(void* argv) {
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a'
                                     || firstline[0] > 'j') {
-        exit(-1);
+        return arg;
     }
     for (i = 1; i < STRLEN - 1; i++) {
         if (firstline[i] != firstline[0]) {
-            exit(-1);
+            return arg;
         }
     }
     if (firstline[STRLEN - 1] != '\n') {
-        exit(-1);
+        return arg;
     }
 
     /*
-     * Check if all lines are equal. Return if not.
+     * Move the pointer of the file descriptor.
      */
-    for  (strn = 0; read(fdesc, line, STRLEN); strn++) {
-        line[STRLEN] = '\0';
+    if (lseek(fdesc, sizeof(char) * STRLEN * start, SEEK_SET) < 0) {
+        perror("Error while forwarding file descriptor pointer");
+        return arg;
+    }
 
+    /*
+     * Check if all lines are equal (between start and end). Return if not.
+     */
+    for (strn = start; strn < end; strn++) {
+        if (read(fdesc, line, STRLEN) < 0) {
+            perror("Error while reading the file");
+            return arg;
+        }
+        line[STRLEN] = '\0';
         if (strcmp(line, firstline)) {
-            exit(-1);
+            return arg;
         }
     }
 
@@ -126,12 +146,12 @@ void* reader(void* argv) {
      * was an error reading the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-        exit(-1);
+        return arg;
     }
 
     if (flock(fdesc, LOCK_UN) < 0) {
         perror("Error unlocking file");
-        exit(-1);
+        return arg;
     }
 
     /*
@@ -139,9 +159,10 @@ void* reader(void* argv) {
      */
     if (close(fdesc) < 0) {
         perror("Error closing file");
-        exit(-1);
+        return arg;
     }
 
     printf("%s is correct.\n", filename);
-    return 0;
+    ((thread_info*) arg)->return_value = 0;
+    return arg;
 }

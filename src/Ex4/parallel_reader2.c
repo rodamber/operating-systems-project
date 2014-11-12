@@ -13,40 +13,45 @@
 
 #define NB_THREADS  3
 
+
+typedef struct {
+    char file_index;
+    int  return_value;
+} thread_info;
+
 void* reader(void* argv);
 
+
 int main(void) {
-    int i;
-    char  n;
+    int  i;
     pthread_t my_t[NB_THREADS];
+    thread_info reader_info_v[NB_THREADS];
+
+    for (i = 0; i < NB_THREADS; ++i) {
+        reader_info_v[i].return_value = -1;
+    }
 
     srand(time(NULL));
 
     for (i = 0; i < NB_THREADS; ++i) {
-        n = '0' + rand() % FILENUM;
-        /* FIXME: Alterar isto para enviar o nome do ficheiro como parametro em
-         * vez de o random. Alterar makefile (wrrdaux). Ver FIXME na função
-         * reader.
-         */
-        if (pthread_create(&my_t[i], NULL, &reader, (void*)&n)) {
+        reader_info_v[i].file_index = '0' + rand() % FILENUM;
+        if (pthread_create(&my_t[i], NULL, &reader, (void*) &reader_info_v[i])) {
             fprintf(stderr, "Error creating thread %d: %s\n", i, strerror(errno));
             return -1;
         }
     }
     for (i = 0; i < NB_THREADS; ++i) {
-        void* return_value = NULL;
-            /* FIXME: Perguntar ao professor qual a diferença entre chamar return (void*) -1 e return -1 no que diz respeito ao valor return_value no pthread_join */
-        if (pthread_join(my_t[i], &return_value)) {
+        if (pthread_join(my_t[i], (void**) &reader_info_v[i])) {
             fprintf(stderr, "Error joining thread %d: %s\n", i, strerror(errno));
             return -1;
         }
-        /* FIXME: SEG FAULT */
-        printf("Thread %d finished and returned %d.\n", i, *(int*)return_value);
+        /* FIXME: RETURN VALUE DÁ 32767 */
+        printf("Thread %d finished and returned %d.\n", i,
+                 reader_info_v[i].return_value);
     }
     return 0;
 }
 
-/* FIXME: Tendo em conta o enunciado, que parâmetro dever mesmo passado aqui? */
 void* reader(void* arg) {
 
     char filename[FNLEN + 1];
@@ -56,18 +61,7 @@ void* reader(void* arg) {
     int  fdesc;     /* file descriptor */
     int  strn;
 
-    if (arg != NULL) {
-        /* FIXME: SEG FAULT*/
-        getfile(filename, *(char*)arg);
-    }
-    else {
-        /*
-         * Set a seed for use by rand() inside getfile().
-         * See documentation in wrrd.h .
-         */
-        srand(time(NULL));
-        getfile(filename, -1);
-    }
+    getfile(filename, ((thread_info*) arg)->file_index);
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -76,14 +70,14 @@ void* reader(void* arg) {
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
         perror("Error opening file");
-        return (void*) -1;
+        return arg;
     }
 
     printf("Checking %s...\n", filename);
 
     if (flock(fdesc, LOCK_SH) < 0) {
         perror("Error locking file");
-        return (void*) -1;
+        return arg;
     }
 
     /*
@@ -91,7 +85,7 @@ void* reader(void* arg) {
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
         perror("Error reading file");
-        return (void*) -1;
+        return arg;
     }
 
     firstline[STRLEN] = '\0';
@@ -102,15 +96,15 @@ void* reader(void* arg) {
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a'
                                     || firstline[0] > 'j') {
-        return (void*) -1;
+        return arg;
     }
     for (i = 1; i < STRLEN - 1; i++) {
         if (firstline[i] != firstline[0]) {
-            return (void*) -1;
+            return arg;
         }
     }
     if (firstline[STRLEN - 1] != '\n') {
-        return (void*) -1;
+        return arg;
     }
 
     /*
@@ -120,7 +114,7 @@ void* reader(void* arg) {
         line[STRLEN] = '\0';
 
         if (strcmp(line, firstline)) {
-            return (void*) -1;
+            return arg;
         }
     }
 
@@ -129,12 +123,12 @@ void* reader(void* arg) {
      * was an error reading the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-        return (void*) -1;
+        return arg;
     }
 
     if (flock(fdesc, LOCK_UN) < 0) {
         perror("Error unlocking file");
-        return (void*) -1;
+        return arg;
     }
 
     /*
@@ -142,10 +136,10 @@ void* reader(void* arg) {
      */
     if (close(fdesc) < 0) {
         perror("Error closing file");
-        return (void*) -1;
+        return arg;
     }
 
     printf("%s is correct.\n", filename);
-    return (void*) -1;
-    return 0;
+    ((thread_info*) arg)->return_value = 0;
+    return arg;
 }
