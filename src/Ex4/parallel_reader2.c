@@ -30,7 +30,6 @@ int main(void) {
     for (i = 0; i < NB_THREADS; ++i) {
         reader_info_v[i].return_value = -1;
     }
-
     srand(time(NULL));
 
     for (i = 0; i < NB_THREADS; ++i) {

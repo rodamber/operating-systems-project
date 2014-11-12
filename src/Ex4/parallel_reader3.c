@@ -1,3 +1,5 @@
+/* FIXME: PERGUNTAR AO PROFESSOR SE E SUPOSTO VERIFICAR O NUMERO DE LINHAS DO FICHEIRO 
+ * OU SE ASSUMIMOS QUE O FICHEIRO TEM 1024 LINHAS */
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -32,17 +34,17 @@ int main(void) {
     for (i = 0; i < NB_THREADS; ++i) {
         reader_info_v[i].return_value = -1;
     }
-
     srand(time(NULL));
 
     for (i = 0; i < NB_THREADS; ++i) {
         reader_info_v[i].file_index = n;
         reader_info_v[i].start      = i * nb_lines;
 
-        /*
-         * Last thread reads the file until the end.
-         */
-        if (i == NB_THREADS - 1) {
+
+        if (i <  NB_THREADS - 1) {
+            reader_info_v[i].end = (i + 1) * nb_lines;
+        }
+        else {
             reader_info_v[i].end = STRNUM;
         }
 
@@ -139,14 +141,6 @@ void* reader(void* arg) {
         if (strcmp(line, firstline)) {
             return arg;
         }
-    }
-
-    /*
-     * Return if there aren't STRNUM valid strings in the file or if there
-     * was an error reading the file.
-     */
-    if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-        return arg;
     }
 
     if (flock(fdesc, LOCK_UN) < 0) {
