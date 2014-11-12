@@ -12,11 +12,9 @@
 #include "../Ex1/wrrd.h"
 
 /*
- *  FIXME: Quem escreveu este código deve querer ser kickado, só pode... PLOX
- *                               |
- *                               |
- *                               |
- *                               v
+ *  FIXME: Falar daquilo dos mutex e da variavel que permite ver se o ficheiro esta
+ *  escrito apenas por um tipo de letra
+ *
  */
 
 int thread_maker (int  nbThreads){

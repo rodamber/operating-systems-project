@@ -1,6 +1,7 @@
 /*
  * Todos os FIXME deste código são para perguntar ao professor Rodrigo Bruno,
  * amanhã, quarta-feira, ao meio-dia e meia. Não alterem nada, por favor.
+ * FIXME: Nao esquecer de ir ver o FIXME do parallel_reader3.c
  */
 #include <errno.h>
 #include <fcntl.h>
