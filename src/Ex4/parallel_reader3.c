@@ -1,5 +1,3 @@
-/* FIXME: PERGUNTAR AO PROFESSOR SE E SUPOSTO VERIFICAR O NUMERO DE LINHAS DO FICHEIRO 
- * OU SE ASSUMIMOS QUE O FICHEIRO TEM 1024 LINHAS */
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -54,12 +52,12 @@ int main(void) {
         }
     }
     for (i = 0; i < NB_THREADS; ++i) {
-        if (pthread_join(my_t[i], (void**) &reader_info_v[i])) {
+        thread_info* ti = &reader_info_v[i];
+        if (pthread_join(my_t[i], (void**) &ti)) {
             fprintf(stderr, "Error joining thread %d: %s\n", i, strerror(errno));
             return -1;
         }
-        printf("Thread %d finished and returned %d.\n", i,
-                 reader_info_v[i].return_value);
+        printf("Thread %d finished and returned %d.\n", i, ti->return_value);
     }
     return 0;
 }

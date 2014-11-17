@@ -40,13 +40,12 @@ int main(void) {
         }
     }
     for (i = 0; i < NB_THREADS; ++i) {
-        if (pthread_join(my_t[i], (void**) &reader_info_v[i])) {
+        thread_info* ti = &reader_info_v[i];
+        if (pthread_join(my_t[i], (void**) &ti)) {
             fprintf(stderr, "Error joining thread %d: %s\n", i, strerror(errno));
             return -1;
         }
-        /* FIXME: RETURN VALUE DÁ 32767 */
-        printf("Thread %d finished and returned %d.\n", i,
-                 reader_info_v[i].return_value);
+        printf("Thread %d finished and returned %d.\n", i, ti->return_value);
     }
     return 0;
 }

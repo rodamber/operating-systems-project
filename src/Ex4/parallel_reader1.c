@@ -14,6 +14,7 @@ int main(void) {
     int i;
     int nb_forks = 0;   /* stores number of childs processes created */
     int status = 0;
+    int return_value = -1;
     char arg;
 
     srand(time(NULL));
@@ -41,7 +42,10 @@ int main(void) {
     printf("Waiting for childs to finish...\n");
     for (i = 0; i < nb_forks; i++) {
         while (wait(&status) == -1);
+        if (WIFEXITED(status)) {
+            return_value = WEXITSTATUS(status);
+            printf("Child finished and returned %d.\n", return_value);
+        }
     }
-
     return 0;
 }
