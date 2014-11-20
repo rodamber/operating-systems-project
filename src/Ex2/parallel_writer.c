@@ -12,39 +12,39 @@
 int main(void) {
 
     int i;
-    int nb_forks = 0;		/* stores number of child processes created */
+    int nb_forks = 0;        /* stores number of child processes created */
     int status = 0;
 
-    struct timeval tvstart;	/* beggining date */
-    struct timeval tvend;	/* ending date */
-    struct timeval tvduration;	/* date difference */
+    struct timeval tvstart;    /* beggining date */
+    struct timeval tvend;    /* ending date */
+    struct timeval tvduration;    /* date difference */
     double duration; /* date difference in microsseconds */
 
     if (gettimeofday(&tvstart, NULL)) {
-	return -1;
+        return -1;
     }
 
     printf("Creating child processes...\n");
     for(i = 0; i < NB_CHILDS; i++) {
-	pid_t pID = fork();
+        pid_t pID = fork();
 
-	if (pID == 0) {
-	    if (execl("../Ex1/wr", "wr", (char*) NULL) < 0) {
-		return -1;
-	    }
+        if (pID == 0) {
+            if (execl("../Ex1/wr", "wr", (char*) NULL) < 0) {
+                return -1;
+            }
             exit(0);
-	}
-	else if (pID < 0) {
-	    printf("Failed to fork!\n");
-	}
-	else {
-	    nb_forks++;
-	}
+        }
+        else if (pID < 0) {
+            printf("Failed to fork!\n");
+        }
+        else {
+            nb_forks++;
+        }
     }
 
     printf("Waiting for childs to finish...\n");
     for(i = 0; i < nb_forks; i++) {
-	wait(&status);
+    wait(&status);
     }
 
     gettimeofday(&tvend, NULL);
