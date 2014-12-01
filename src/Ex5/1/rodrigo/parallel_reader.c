@@ -9,16 +9,16 @@
 #include "../../../Ex1/wrrd.h"
 #include "parallel_reader.h"
 
-#define NB_THREADS  15
-
 int  nb_readers = 0;
 int  next_read_index = 0;
+int  next_write_index = 0;
+
 
 int main(void) {
     int  i;
-    int  next_write_index = 0;
-    char filename[FNLEN + 2]; /* +2 to be able to read ' ' or '\n' */
+    char filename[FNLEN + 1]; /* +2 to be able to read ' ' or '\n' */
     pthread_t readers_ids[NB_THREADS];
+	long int return_values[NB_THREADS];
 
     /**
      * Sincronization objects initialization.
@@ -38,40 +38,38 @@ int main(void) {
         }
     }
 
+	printf("Enter the file(s) name(s):\n");
     /**
      * Read filenames from input and pass them to child threads.
+	 * Finish program if filename is FINISH.
      */
-    while (1) {
+    while (strncmp(filename, FINISH, strlen(FINISH)) != 0) {
         sem_wait(&sem_no_info);
-        pthread_mutex_lock(&buffer_mutex);
 
-        printf("Insira o(s) nome(s) do(s) ficheiro(s):\n ");
         if (read(0, filename, FNLEN + 1) < 0) { /* the "+ 1" is there to read a ' ' or a '\n' */
             perror("Error reading from stdin");
             exit(-1);
         }
-
         filename[FNLEN] = '\0';
+
+        pthread_mutex_lock(&buffer_mutex);
 
         strcpy(buffer[next_write_index], filename);
         (next_write_index++) % BUFFER_SIZE;
 
         pthread_mutex_unlock(&buffer_mutex);
         sem_post(&sem_info);
-
-	filename[0] = '\0';
     }
 
     /**
      * Join threads
      */
     for (i = 0; i < NB_THREADS; i++) {
-        int* return_value_ptr = NULL;
-        if (pthread_join(readers_ids[i], (void**) &return_value_ptr)) {
+        if (pthread_join(readers_ids[i], (void**) &return_values[i])) {
             perror("Error joining threads");
             exit(-1);
         }
-        printf("Thread %d/%d returned %d\n", i, NB_THREADS, *return_value_ptr);
+        printf("Thread %d/%d returned %d\n", i, NB_THREADS, (int) return_values[i]);
     }
 
     /**

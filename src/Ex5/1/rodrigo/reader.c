@@ -25,6 +25,11 @@ void* reader(void* arg) {
 
 while(1) {
     sem_wait(&sem_info);
+
+	if (strcmp(buffer[next_read_index], FINISH) != 0) {
+		return 0;
+	}
+
     pthread_mutex_lock(&buffer_mutex);
 
     strcpy(filename, buffer[next_read_index]);
@@ -112,5 +117,5 @@ while(1) {
 
     printf("%s is correct.\n", filename);
 
-} /* while(1) */
+} /* while(strcmp(...) != 0) */
 }

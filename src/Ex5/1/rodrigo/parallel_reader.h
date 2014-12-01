@@ -4,10 +4,13 @@
 #include "../../../Ex1/wrrd.h"
 
 #define BUFFER_SIZE 10
+#define FINISH		"sair"
+#define NB_THREADS	2
 
 char buffer[BUFFER_SIZE][FNLEN + 1];
 int  nb_readers;
 int  next_read_index;
+int  next_write_index;
 
 sem_t sem_no_info;
 sem_t sem_info;
