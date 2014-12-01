@@ -12,6 +12,8 @@
 #define NB_THREADS  50
 #define FINISH      "sair"
 
+int  nb_readers = 0;
+int  next_read_index = 0;
 
 int main(void) {
     int i;
