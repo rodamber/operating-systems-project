@@ -9,7 +9,7 @@
 #include "../../../Ex1/wrrd.h"
 #include "parallel_reader.h"
 
-#define NB_THREADS  50
+#define NB_THREADS  1
 #define FINISH      "sair"
 
 int  nb_readers = 0;
@@ -18,9 +18,8 @@ int  next_read_index = 0;
 int main(void) {
     int i;
     int  next_write_index = 0;
-    char* input;
+    char input;
     char filename[FNLEN + 1];
-    char separator[] = {' ', '\0'};
     sem_t sem_no_info;
     pthread_t readers_ids[NB_THREADS];
 
@@ -42,20 +41,21 @@ int main(void) {
         }
     }
 
+printf("after the loop\n");
     /**
      * Read filenames from input. Finish when "sair" is read from input.
      */
-    while (!strcmp(filename, FINISH)) {
-        if (read(0, input, 1) < 0) {
+    while (strcmp(filename, FINISH) != 0) {
+        if (read(0, &input, 1) < 0) {
             perror("Error reading from stdin");
             exit(-1);
         }
 
-        if (!strcmp(input, separator)) {
+        if (input == ' ' || input == '\n') {
             continue;
         }
 
-        strncat(filename, input, 1);
+        strncat(filename, &input, 1);
 
         sem_wait(&sem_no_info);
         pthread_mutex_lock(&buffer_mutex);
@@ -66,9 +66,13 @@ int main(void) {
         pthread_mutex_unlock(&buffer_mutex);
         sem_post(&sem_no_info);
 
-        filename[0] = '\0';
+        if (strlen(filename) > FNLEN) {
+		filename[0] = '\0';
+	}
     }
+printf("after the loop\n");
 
+printf("before joining threads\n");
     /**
      * Join threads
      */
@@ -80,6 +84,7 @@ int main(void) {
         }
         printf("Thread %d/%d returned %d\n", i, NB_THREADS, *return_value_ptr);
     }
+printf("after joining threads\n");
 
     /**
      * Sincronization objects elimination.
