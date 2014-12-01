@@ -5,5 +5,5 @@
 System calls:
     - kill (enviar signals), sigaction (tratamento de signals? recomendada), signal (nao recomendada)
     - pthread_mutex_{lock, unlock, }
-    - semaforos_{wait, post?}
+    - sem_{wait, post?}
     - pipe, dup, dup2 (recomendada)

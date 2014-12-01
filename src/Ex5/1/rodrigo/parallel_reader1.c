@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "../../../Ex1/wrrd.h"
@@ -22,6 +23,7 @@ pthread_mutex_t buffer_mutex;
 
 
 int main(void) {
+    int i;
     char input;
     char filename[FNLEN + 1];
     pthread_t readers_ids[NB_THREADS];
@@ -57,12 +59,12 @@ int main(void) {
             continue;
         }
 
-        filename = strncat(filename, &input, 1);
+        strncat(filename, &input, 1);
 
         sem_wait(&sem_info);
         pthread_mutex_lock(&buffer_mutex);
 
-        buffer = strcpy(buffer[next_write_index], filename);
+        strcpy(buffer[next_write_index], filename);
         (next_write_index++) % BUFFER_SIZE;
         filename[0] = '\0';
 
