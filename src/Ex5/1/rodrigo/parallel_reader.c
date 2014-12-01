@@ -18,7 +18,7 @@ int  next_read_index = 0;
 int main(void) {
     int i;
     int  next_write_index = 0;
-    char* input;
+    char* input = NULL;
     char filename[FNLEN + 1];
     char separator[] = {' ', '\0'};
     sem_t sem_no_info;
