@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include "../../../Ex1/wrrd.h"
-#include "parallel_reader1.h"
+#include "parallel_reader.h"
 
 #define NB_THREADS  50
 #define FINISH      "sair"
