@@ -1,4 +1,4 @@
-/*perguntar ao professor se e preciso fazer verificacoes para inicializaçao (por exemplo, sem_init), e para utilizaçao (por exemplo, sem_wait, sem_post) dos objectos de sincronizaçao*/
+/* TODO:perguntar ao professor se e preciso fazer verificacoes para inicializaçao (por exemplo, sem_init), e para utilizaçao (por exemplo, sem_wait, sem_post) dos objectos de sincronizaçao*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -9,23 +9,21 @@
 #include "../../../Ex1/wrrd.h"
 #include "parallel_reader.h"
 
-#define NB_THREADS  1
-#define FINISH      "sair"
+#define NB_THREADS  15
 
 int  nb_readers = 0;
 int  next_read_index = 0;
 
 int main(void) {
-    int i;
+    int  i;
     int  next_write_index = 0;
-    char filename[FNLEN + 1];
-    sem_t sem_no_info;
+    char filename[FNLEN + 2]; /* +2 to be able to read ' ' or '\n' */
     pthread_t readers_ids[NB_THREADS];
 
     /**
      * Sincronization objects initialization.
      */
-    if (pthread_mutex_init(&buffer_mutex, NULL) || sem_init(&sem_info,0, 0) || sem_init(&sem_no_info, 0, BUFFER_SIZE)) {
+    if (pthread_mutex_init(&buffer_mutex, NULL) || sem_init(&sem_info, 0, 0) || sem_init(&sem_no_info, 0, BUFFER_SIZE)) {
         perror("Error creating sincronization objects");
         exit(-1);
     }
@@ -40,30 +38,30 @@ int main(void) {
         }
     }
 
-printf("after the loop\n");
     /**
-     * Read filenames from input. Finish when "sair" is read from input.
+     * Read filenames from input and pass them to child threads.
      */
-    while (strcmp(filename, FINISH) != 0) {
-        if (read(0, filename, FNLEN + 1) < 0) { /* the "+ 1" is there to read a ' ' or a '\n', not to place '\0' */
+    while (1) {
+        sem_wait(&sem_no_info);
+        pthread_mutex_lock(&buffer_mutex);
+
+        printf("Insira o(s) nome(s) do(s) ficheiro(s):\n ");
+        if (read(0, filename, FNLEN + 1) < 0) { /* the "+ 1" is there to read a ' ' or a '\n' */
             perror("Error reading from stdin");
             exit(-1);
         }
 
-        sem_wait(&sem_no_info);
-        pthread_mutex_lock(&buffer_mutex);
+        filename[FNLEN] = '\0';
 
-        strncpy(buffer[next_write_index], filename, FNLEN);
+        strcpy(buffer[next_write_index], filename);
         (next_write_index++) % BUFFER_SIZE;
 
         pthread_mutex_unlock(&buffer_mutex);
-        sem_post(&sem_no_info);
+        sem_post(&sem_info);
 
-        filename[0] = '\0';
+	filename[0] = '\0';
     }
-printf("after the loop\n");
 
-printf("before joining threads\n");
     /**
      * Join threads
      */
@@ -75,7 +73,6 @@ printf("before joining threads\n");
         }
         printf("Thread %d/%d returned %d\n", i, NB_THREADS, *return_value_ptr);
     }
-printf("after joining threads\n");
 
     /**
      * Sincronization objects elimination.

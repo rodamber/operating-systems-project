@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -22,6 +23,7 @@ void* reader(void* arg) {
     int  fdesc;     /* file descriptor */
     int  strn;
 
+while(1) {
     sem_wait(&sem_info);
     pthread_mutex_lock(&buffer_mutex);
 
@@ -29,7 +31,11 @@ void* reader(void* arg) {
     (next_read_index++) % BUFFER_SIZE;
 
     pthread_mutex_unlock(&buffer_mutex);
-    sem_post(&sem_info);
+    sem_post(&sem_no_info);
+
+    filename[FNLEN] = '\0';
+
+    printf("Checking %s.\n", filename);
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -104,5 +110,7 @@ void* reader(void* arg) {
         exit(-1);
     }
 
-    exit(0);
+    printf("%s is correct.\n", filename);
+
+} /* while(1) */
 }

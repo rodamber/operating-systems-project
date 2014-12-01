@@ -9,6 +9,7 @@ char buffer[BUFFER_SIZE][FNLEN + 1];
 int  nb_readers;
 int  next_read_index;
 
+sem_t sem_no_info;
 sem_t sem_info;
 pthread_mutex_t buffer_mutex;
 
