@@ -18,7 +18,6 @@ int  next_read_index = 0;
 int main(void) {
     int i;
     int  next_write_index = 0;
-    char input;
     char filename[FNLEN + 1];
     sem_t sem_no_info;
     pthread_t readers_ids[NB_THREADS];
@@ -46,29 +45,21 @@ printf("after the loop\n");
      * Read filenames from input. Finish when "sair" is read from input.
      */
     while (strcmp(filename, FINISH) != 0) {
-        if (read(0, &input, 1) < 0) {
+        if (read(0, filename, FNLEN + 1) < 0) { /* the "+ 1" is there to read a ' ' or a '\n', not to place '\0' */
             perror("Error reading from stdin");
             exit(-1);
         }
 
-        if (input == ' ' || input == '\n') {
-            continue;
-        }
-
-        strncat(filename, &input, 1);
-
         sem_wait(&sem_no_info);
         pthread_mutex_lock(&buffer_mutex);
 
-        strcpy(buffer[next_write_index], filename);
+        strncpy(buffer[next_write_index], filename, FNLEN);
         (next_write_index++) % BUFFER_SIZE;
 
         pthread_mutex_unlock(&buffer_mutex);
         sem_post(&sem_no_info);
 
-        if (strlen(filename) > FNLEN) {
-		filename[0] = '\0';
-	}
+        filename[0] = '\0';
     }
 printf("after the loop\n");
 
