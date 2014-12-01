@@ -7,25 +7,18 @@
 #include <unistd.h>
 
 #include "../../../Ex1/wrrd.h"
+#include "parallel_reader1.h"
 
-#define BUFFER_SIZE 10
 #define NB_THREADS  50
 #define FINISH      "sair"
-
-char buffer[BUFFER_SIZE][FNLEN + 1];
-int  nb_readers = 0;
-int  next_read_index = 0;
-int  next_write_index = 0;
-
-sem_t sem_info;
-sem_t sem_no_info;
-pthread_mutex_t buffer_mutex;
 
 
 int main(void) {
     int i;
+    int  next_write_index = 0;
     char input;
     char filename[FNLEN + 1];
+    sem_t sem_info;
     pthread_t readers_ids[NB_THREADS];
 
     /**
@@ -55,21 +48,22 @@ int main(void) {
             exit(-1);
         }
 
-        if (!strcmp(input, ' ')) {
+        if (!strcmp(&input, ' ')) {
             continue;
         }
 
         strncat(filename, &input, 1);
 
-        sem_wait(&sem_info);
+        sem_wait(&sem_no_info);
         pthread_mutex_lock(&buffer_mutex);
 
         strcpy(buffer[next_write_index], filename);
         (next_write_index++) % BUFFER_SIZE;
-        filename[0] = '\0';
 
         pthread_mutex_unlock(&buffer_mutex);
-        sem_post(&sem_info);
+        sem_post(&sem_no_info);
+
+        filename[0] = '\0';
     }
 
     /**
