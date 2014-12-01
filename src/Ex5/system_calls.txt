@@ -1,0 +1,9 @@
+1:
+    produtor-consumidor no buffer
+    escritores ficam bloqueados se nao tiverem espaço no buffer para escrever e idem para os leitores
+
+System calls:
+    - kill (enviar signals), sigaction (tratamento de signals? recomendada), signal (nao recomendada)
+    - pthread_mutex_{lock, unlock, }
+    - semaforos_{wait, post?}
+    - pipe, dup, dup2 (recomendada)
