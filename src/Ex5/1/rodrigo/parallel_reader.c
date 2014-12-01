@@ -16,9 +16,10 @@
 int main(void) {
     int i;
     int  next_write_index = 0;
-    char input;
+    char* input;
     char filename[FNLEN + 1];
-    sem_t sem_info;
+    char separator[] = {' ', '\0'};
+    sem_t sem_no_info;
     pthread_t readers_ids[NB_THREADS];
 
     /**
@@ -43,16 +44,16 @@ int main(void) {
      * Read filenames from input. Finish when "sair" is read from input.
      */
     while (!strcmp(filename, FINISH)) {
-        if (read(0, &input, 1) < 0) {
+        if (read(0, input, 1) < 0) {
             perror("Error reading from stdin");
             exit(-1);
         }
 
-        if (!strcmp(&input, ' ')) {
+        if (!strcmp(input, separator)) {
             continue;
         }
 
-        strncat(filename, &input, 1);
+        strncat(filename, input, 1);
 
         sem_wait(&sem_no_info);
         pthread_mutex_lock(&buffer_mutex);
