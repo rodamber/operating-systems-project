@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #include "../../../Ex1/wrrd.h"
-#include "parallel_reader.h"
+#include "monitor.h"
 
 void* reader(void* arg) {
 
@@ -25,22 +25,17 @@ void* reader(void* arg) {
 
 while(1) {
     sem_wait(&sem_info);
-
-	if (strcmp(buffer[next_read_index], FINISH) != 0) {
-		return 0;
-	}
-
     pthread_mutex_lock(&buffer_mutex);
 
     strcpy(filename, buffer[next_read_index]);
-    (next_read_index++) % BUFFER_SIZE;
+    next_read_index = (next_read_index + 1) % BUFFER_SIZE;
 
     pthread_mutex_unlock(&buffer_mutex);
     sem_post(&sem_no_info);
 
     filename[FNLEN] = '\0';
 
-    printf("Checking %s.\n", filename);
+    printf("Checking %s\n", filename);
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -115,7 +110,7 @@ while(1) {
         exit(-1);
     }
 
-    printf("%s is correct.\n", filename);
+    printf("%s is correct\n", filename);
 
 } /* while(strcmp(...) != 0) */
 }
