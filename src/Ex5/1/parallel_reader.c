@@ -21,16 +21,16 @@ int  next_write_index = 0;
 
 int main(void) {
     int  i;
-    char filename[FNLEN + 1]; /* +2 to be able to read ' ' or '\n' */
+    char filename[FNLEN + 1];
     pthread_t readers_ids[NB_THREADS];
-	long int return_values[NB_THREADS];
+    long int return_values[NB_THREADS];
 
     /**
      * Sincronization objects initialization.
      */
     if (pthread_mutex_init(&buffer_mutex, NULL)
-					|| sem_init(&sem_info, 0, 0)
-					|| sem_init(&sem_no_info, 0, BUFFER_SIZE)) {
+                    || sem_init(&sem_info, 0, 0)
+                    || sem_init(&sem_no_info, 0, BUFFER_SIZE)) {
         perror("Error creating sincronization objects");
         exit(-1);
     }
@@ -45,7 +45,7 @@ int main(void) {
         }
     }
 
-	printf("Enter the file(s) name(s):\n");
+    printf("Enter the file(s) name(s):\n");
     /**
      * Read filenames from input and pass them to child threads.
      */
@@ -59,12 +59,12 @@ int main(void) {
 
         pthread_mutex_lock(&buffer_mutex);
 
-		filename[FNLEN] = '\0';
-    	strcpy(buffer[next_write_index], filename);
-		next_write_index = (next_write_index + 1) % BUFFER_SIZE;
+        filename[FNLEN] = '\0';
+        strcpy(buffer[next_write_index], filename);
+        next_write_index = (next_write_index + 1) % BUFFER_SIZE;
 
-    	pthread_mutex_unlock(&buffer_mutex);
-    	sem_post(&sem_info);
+        pthread_mutex_unlock(&buffer_mutex);
+        sem_post(&sem_info);
     }
 
     /**
@@ -82,8 +82,8 @@ int main(void) {
      * Sincronization objects elimination.
      */
     if (pthread_mutex_destroy(&buffer_mutex)
-					|| sem_destroy(&sem_info)
-					|| sem_destroy(&sem_no_info)) {
+                    || sem_destroy(&sem_info)
+                    || sem_destroy(&sem_no_info)) {
         perror("Error destroying sincronization objects");
         exit(-1);
     }
