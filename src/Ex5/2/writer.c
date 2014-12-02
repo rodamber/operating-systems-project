@@ -10,17 +10,10 @@
 #include <unistd.h>
 
 #include "../../Ex1/wrrd.h"
-#include "../monitor.h"
+#include "writer.h"
 
 
-void* writer(void*) {
-    /*
-     * Set a seed for use by rand() inside getfile() and getstr().
-     * See documentation in wrrd.h .
-     */
-    srand(time(NULL));
-
-while (1) {
+void* writer(void* arg) {
     char filename[STRLEN + 1];
     char str[FNLEN + 1];
     int  strn = STRNUM;
@@ -39,6 +32,20 @@ while (1) {
      */
     int omodes = S_IRUSR | S_IWUSR | S_IROTH;
 
+    (void)arg;
+
+    /*
+     * Set a seed for use by rand() inside getfile() and getstr().
+     * See documentation in wrrd.h .
+     */
+    srand(time(NULL));
+
+while (1) {
+
+    if (get_finish_flag()) {
+        exit(0);
+    }
+
     getfile(filename, -1);
 
     /*
@@ -46,12 +53,12 @@ while (1) {
      */
     if ((fdesc = open(filename, oflags , omodes)) < 0) {
         perror("Error opening file");
-        return -1;
+        exit(-1);
     }
 
-    if (flock(fdesc, LOCK_EX | LOCK_NB) < 0) {
+    if (flock(fdesc, LOCK_EX) < 0) {
         perror("Error locking file");
-        return -1;
+        exit(-1);
     }
 
     getstr(str);
@@ -63,12 +70,13 @@ while (1) {
          */
         if (write(fdesc, str, STRLEN) != STRLEN) {
             perror("Error writing file");
-            return -1;
+            exit(-1);
         }
     }
 
     if (flock(fdesc, LOCK_UN) < 0) {
         perror("Error unlocking file");
+        exit(-1);
     }
 
     /*
@@ -76,7 +84,7 @@ while (1) {
      */
     if (close(fdesc) < 0) {
         perror("Error closing file");
-        return -1;
+        exit(-1);
     }
 } /* while(1) */
 }

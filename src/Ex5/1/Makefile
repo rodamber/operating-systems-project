@@ -5,10 +5,10 @@ OFLAGS=-g -c
 main: parallel_reader.o reader.o
 	gcc $(CFLAGS) $(LFLAGS) -o main parallel_reader.o reader.o
 
-parallel_reader.o: parallel_reader.c ../../../Ex1/wrrd.h monitor.h
+parallel_reader.o: parallel_reader.c ../../Ex1/wrrd.h reader.h
 	gcc $(CFLAGS) $(OFLAGS) parallel_reader.c
 
-reader.o: reader.c ../../../Ex1/wrrd.h monitor.h
+reader.o: reader.c ../../Ex1/wrrd.h reader.h
 	gcc $(CFLAGS) $(OFLAGS) reader.c
 
 clean:

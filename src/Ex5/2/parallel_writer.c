@@ -1,15 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "../../Ex1/wrrd.h"
-#include "monitor.h"
+#include "writer.h"
+
+
+static int file_locking  = 1;
+static int error_writing = 0;
+static int finish_flag   = 0;
+
+int get_file_locking (void) { return file_locking;  }
+int get_error_writing(void) { return error_writing; }
+int get_finish_flag  (void) { return finish_flag;   }
+
+void sigusr1_handler(int sig) { (void)sig; file_locking  = !file_locking;  }
+void sigusr2_handler(int sig) { (void)sig; error_writing = !error_writing; }
+void sigstop_handler(int sig) { (void)sig; finish_flag   = 1;              }
 
 
 int main(void) {
     int i;
-    pthread_t writers_ids[NB_WRITERS];
     long int return_values[NB_WRITERS];
+    pthread_t writers_ids[NB_WRITERS];
 
-    /**
+    struct sigaction sigusr1;
+    struct sigaction sigusr2;
+    struct sigaction sigstop;
+
+    /*
+     * Initialize sigaction handlers.
+     */
+    sigusr1.sa_handler = sigusr1_handler;
+    sigusr2.sa_handler = sigusr2_handler;
+    sigstop.sa_handler = sigstop_handler;
+
+    /*
+     * Initialize signal sets to be empty.
+     */
+    sigemptyset(&sigusr1.sa_mask);
+    sigemptyset(&sigusr2.sa_mask);
+    sigemptyset(&sigstop.sa_mask);
+
+    /*
+     * Add the specified signals to the signal sets.
+     */
+    sigaddset(&sigusr1.sa_mask, SIGUSR1);
+    sigaddset(&sigusr2.sa_mask, SIGUSR2);
+    sigaddset(&sigstop.sa_mask, SIGSTOP);
+
+    /*
+     * Reset sigaction flags.
+     */
+    sigusr1.sa_flags = 0;
+    sigusr2.sa_flags = 0;
+    sigstop.sa_flags = 0;
+
+    /*
+     * Assigns actions to the signals.
+     */
+    sigaction(SIGUSR1, &sigusr1, NULL);
+    sigaction(SIGUSR2, &sigusr2, NULL);
+    sigaction(SIGSTOP, &sigstop, NULL);
+
+    /*
      * Thread launch.
      */
     for (i = 0; i < NB_WRITERS; i++) {
@@ -19,16 +74,11 @@ int main(void) {
         }
     }
 
-    /**
-     * Signal handling.
-     */
-    while(1) {}
-
-    /**
+    /*
      * Join threads.
      */
     for (i = 0; i < NB_WRITERS; i++) {
-        if (pthread_join(readers_ids[i], (void**) &return_values[i])) {
+        if (pthread_join(writers_ids[i], (void**) &return_values[i])) {
             perror("Error joining threads");
             exit(-1);
         }

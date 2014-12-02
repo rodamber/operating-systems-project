@@ -6,11 +6,10 @@
 #include <unistd.h>
 
 #include "../../Ex1/wrrd.h"
-#include "../monitor.h"
+#include "reader.h"
 
-int  nb_readers = 0;
-int  next_read_index = 0;
-int  next_write_index = 0;
+int next_read_index  = 0;
+int next_write_index = 0;
 
 
 int main(void) {
