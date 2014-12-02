@@ -18,5 +18,6 @@ pthread_mutex_t buffer_mutex;
 
 
 void* reader(void*);
+void* writer(void*);
 
 #endif /* end of include guard: __PARALLEL_READER_H__ */
