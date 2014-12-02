@@ -1,4 +1,7 @@
+#include <errno.h>
 #include <fcntl.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,10 +10,11 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include "wrrd.h"
 
+#include "../../../Ex1/wrrd.h"
+#include "monitor.h"
 
-int main(void) {
+void* reader(void* arg) {
 
     char filename[FNLEN + 1];
     char line[STRLEN + 1];
@@ -19,12 +23,19 @@ int main(void) {
     int  fdesc;     /* file descriptor */
     int  strn;
 
-    /*
-     * Set a seed for use by rand() inside getfile().
-     * See documentation in wrrd.h .
-     */
-    srand(time(NULL));
-    getfile(filename, -1);
+while(1) {
+    sem_wait(&sem_info);
+    pthread_mutex_lock(&buffer_mutex);
+
+    strcpy(filename, buffer[next_read_index]);
+    next_read_index = (next_read_index + 1) % BUFFER_SIZE;
+
+    pthread_mutex_unlock(&buffer_mutex);
+    sem_post(&sem_no_info);
+
+    filename[FNLEN] = '\0';
+
+    printf("Checking %s\n", filename);
 
     /*
      * Open file. Return if there was an error opening the file.
@@ -33,14 +44,12 @@ int main(void) {
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
         perror("Error opening file");
-        return -1;
+        exit(-1);
     }
-
-    printf("Checking %s...\n", filename);
 
     if (flock(fdesc, LOCK_SH) < 0) {
         perror("Error locking file");
-        return -1;
+        exit(-1);
     }
 
     /*
@@ -48,7 +57,7 @@ int main(void) {
      */
     if ((read(fdesc, firstline, STRLEN)) < 0) {
         perror("Error reading file");
-        return -1;
+        exit(-1);
     }
 
     firstline[STRLEN] = '\0';
@@ -57,17 +66,16 @@ int main(void) {
      * First line must be composed of STRLEN - 1  equal chars between
      * 'a' and 'j', followed by a newline character, '\n'.
      */
-    if (strlen(firstline) != STRLEN || firstline[0] < 'a'
-                                    || firstline[0] > 'j') {
-        return -1;
+    if (strlen(firstline) != STRLEN || firstline[0] < 'a' || firstline[0] > 'j') {
+        exit(-1);
     }
     for (i = 1; i < STRLEN - 1; i++) {
         if (firstline[i] != firstline[0]) {
-            return -1;
+            exit(-1);
         }
     }
     if (firstline[STRLEN - 1] != '\n') {
-        return -1;
+        exit(-1);
     }
 
     /*
@@ -77,7 +85,7 @@ int main(void) {
         line[STRLEN] = '\0';
 
         if (strcmp(line, firstline)) {
-            return -1;
+            exit(-1);
         }
     }
 
@@ -86,13 +94,12 @@ int main(void) {
      * was an error reading the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-        return -1;
+        exit(-1);
     }
-
 
     if (flock(fdesc, LOCK_UN) < 0) {
         perror("Error unlocking file");
-        return -1;
+        exit(-1);
     }
 
     /*
@@ -100,9 +107,10 @@ int main(void) {
      */
     if (close(fdesc) < 0) {
         perror("Error closing file");
-        return -1;
+        exit(-1);
     }
 
-    printf("%s is correct.\n", filename);
-    return 0;
+    printf("%s is correct\n", filename);
+
+} /* while(1) */
 }
