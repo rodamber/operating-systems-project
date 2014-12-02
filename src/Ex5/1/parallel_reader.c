@@ -1,9 +1,3 @@
-/* TODO:perguntar ao professor se e preciso fazer verificacoes para inicializaçao
- * (por exemplo, sem_init), e para utilizaçao (por exemplo, sem_wait, sem_post)
- * dos objectos de sincronizaçao*/
-
-/* TODO: e suposto haver forma de sair deste programa? */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
