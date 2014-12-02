@@ -16,8 +16,8 @@ int  next_write_index = 0;
 int main(void) {
     int  i;
     char filename[FNLEN + 1];
-    pthread_t readers_ids[NB_THREADS];
-    long int return_values[NB_THREADS];
+    pthread_t readers_ids[NB_READERS];
+    long int return_values[NB_READERS];
 
     /**
      * Sincronization objects initialization.
@@ -32,7 +32,7 @@ int main(void) {
     /**
      * Thread launch.
      */
-    for (i = 0; i < NB_THREADS; i++) {
+    for (i = 0; i < NB_READERS; i++) {
         if (pthread_create(&readers_ids[i], NULL, &reader, NULL)) {
             perror("Error creating thread");
             exit(-1);
@@ -64,12 +64,12 @@ int main(void) {
     /**
      * Join threads
      */
-    for (i = 0; i < NB_THREADS; i++) {
+    for (i = 0; i < NB_READERS; i++) {
         if (pthread_join(readers_ids[i], (void**) &return_values[i])) {
             perror("Error joining threads");
             exit(-1);
         }
-        printf("Thread %d/%d returned %d\n", i + 1, NB_THREADS, (int) return_values[i]);
+        printf("Thread %d/%d returned %d\n", i + 1, NB_READERS, (int) return_values[i]);
     }
 
     /**
