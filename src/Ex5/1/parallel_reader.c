@@ -5,8 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../../Ex1/wrrd.h"
-#include "monitor.h"
+#include "../../Ex1/wrrd.h"
+#include "../monitor.h"
 
 int  nb_readers = 0;
 int  next_read_index = 0;

@@ -11,8 +11,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../../../Ex1/wrrd.h"
-#include "monitor.h"
+#include "../../Ex1/wrrd.h"
+#include "../monitor.h"
 
 void* reader(void* arg) {
 
