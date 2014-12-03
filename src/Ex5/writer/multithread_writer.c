@@ -19,9 +19,9 @@ int get_file_locking (void) { return file_locking;  }
 int get_error_writing(void) { return error_writing; }
 int get_finish_flag  (void) { return finish_flag;   }
 
-void sigusr1_handler(int sig) { (void)sig; file_locking  = !file_locking;  }
-void sigusr2_handler(int sig) { (void)sig; error_writing = !error_writing; }
-void sigtstp_handler(int sig) { (void)sig; finish_flag   = 1;              }
+static void sigusr1_handler(int sig) { (void)sig; file_locking  = !file_locking;  }
+static void sigusr2_handler(int sig) { (void)sig; error_writing = !error_writing; }
+static void sigtstp_handler(int sig) { (void)sig; finish_flag   = 1;              }
 
 
 int main(void) {
