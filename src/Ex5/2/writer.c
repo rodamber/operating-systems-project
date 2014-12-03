@@ -43,6 +43,7 @@ void* writer(void* arg) {
 while (1) {
 
     if (get_finish_flag()) {
+        puts("====================FINISH LINE====================");
         exit(0);
     }
 
