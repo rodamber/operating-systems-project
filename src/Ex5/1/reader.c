@@ -42,6 +42,10 @@ while(!finish_flag) {
 	}
 	else {
 		finish_flag = 1;
+		if (sem_post(&sem_info)) {
+			perror("Error on sem_post (child thread)");
+			exit(-1);
+		}
 	}
     if (pthread_mutex_unlock(&buffer_mutex)) {
         perror("Error on pthread_mutex_unlock (child thread)");
@@ -80,7 +84,6 @@ while(!finish_flag) {
         perror("Error reading file");
         return (void*) -1;
     }
-
     firstline[STRLEN] = '\0';
 
     /*
@@ -133,6 +136,6 @@ while(!finish_flag) {
 
     printf("%s is correct\n", filename);
 
-} /* while(1) */
+} /* while(!finish_flag) */
 	return (void*) 0;
 }

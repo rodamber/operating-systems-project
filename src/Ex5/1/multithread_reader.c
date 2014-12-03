@@ -8,8 +8,6 @@
 #include "../../Ex1/wrrd.h"
 #include "reader.h"
 
-static int finish_flag = 0;
-
 int next_read_index  = 0;
 int next_write_index = 0;
 
@@ -44,7 +42,7 @@ int main(void) {
     /**
      * Read filenames from input and pass them to child threads.
      */
-    while (!finish_flag) {
+    while (0 != strcmp(filename, "sair")) {
 		ssize_t bytes_read;
 
         if (sem_wait(&sem_no_info)) {
@@ -62,17 +60,9 @@ int main(void) {
         }
 
 		filename[bytes_read - 1] = '\0';
-		if (0 != strcmp(filename, "sair")) {
-        	strcpy(buffer[next_write_index], filename);
-        	next_write_index = (next_write_index + 1) % BUFFER_SIZE;
-		}
-		else {
-			for (i = 0; i < BUFFER_SIZE; i++) {
-				strcpy(buffer[i], filename);
-				finish_flag = 1;
-/* todas as threads excepto uma ficam paradas no sem_wait */
-			}
-		}
+        strcpy(buffer[next_write_index], filename);
+        next_write_index = (next_write_index + 1) % BUFFER_SIZE;
+
         if (pthread_mutex_unlock(&buffer_mutex)) {
             perror("Error on pthread_mutex_unlock (parent thread)");
             exit(-1);
@@ -103,6 +93,5 @@ int main(void) {
         perror("Error destroying sincronization objects");
         exit(-1);
     }
-
-    exit(0);
+	return ret_val;
 }
