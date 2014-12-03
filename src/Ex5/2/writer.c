@@ -56,11 +56,7 @@ void* writer(void* arg) {
      */
     srand(time(NULL));
 
-while (1) {
-    if (get_finish_flag()) { /* Isto nao funciona porque e impossivel fazer o handle do SIGSTOP */
-        exit(0);
-    }
-
+while (!get_finish_flag()) {
     getfile(filename, -1);
 
     /*
@@ -125,4 +121,5 @@ while (1) {
         exit(-1);
     }
 } /* while(1) */
+    return 0;
 }
