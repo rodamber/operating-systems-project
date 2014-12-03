@@ -5,7 +5,7 @@
 #include "../../Ex1/wrrd.h"
 
 #define BUFFER_SIZE 10
-#define NB_READERS  20
+#define NB_READERS  2
 
 char buffer[BUFFER_SIZE][FNLEN + 1];
 
