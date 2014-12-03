@@ -23,6 +23,8 @@ void* reader(void* arg) {
     int  fdesc;     /* file descriptor */
     int  strn;
 
+	(void) arg;
+
 while(1) {
     sem_wait(&sem_info);
     pthread_mutex_lock(&buffer_mutex);
