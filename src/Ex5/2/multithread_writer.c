@@ -26,8 +26,9 @@ void sigtstp_handler(int sig) { (void)sig; finish_flag   = 1;              }
 
 int main(void) {
     int i;
-    long int return_values[NB_WRITERS];
     pthread_t writers_ids[NB_WRITERS];
+    long int return_values[NB_WRITERS];
+	int return_value = -1;
 
     struct sigaction sigusr1;
     struct sigaction sigusr2;
@@ -82,11 +83,16 @@ int main(void) {
      * Join threads.
      */
     for (i = 0; i < NB_WRITERS; i++) {
+		int ret;
         if (pthread_join(writers_ids[i], (void**) &return_values[i])) {
             perror("Error joining threads");
             exit(-1);
         }
-        printf("Thread %d/%d returned %d\n", i + 1, NB_WRITERS, (int) return_values[i]);
+		ret = (int) return_values[i];
+        printf("Thread %d/%d returned %d\n", i + 1, NB_WRITERS, ret);
+		if (ret == 0) {
+			return_value = 0;
+		}
     }
-    return 0;
+    return return_value;
 }
