@@ -2,11 +2,11 @@ CFLAGS=-ansi -pedantic -Wall -Wextra
 LFLAGS=-pthread
 OFLAGS=-g -c
 
-main: parallel_writer.o writer.o wrrdaux.o
-	gcc $(CFLAGS) $(LFLAGS) -o main parallel_writer.o writer.o wrrdaux.o
+mt_wr: multithread_writer.o writer.o wrrdaux.o
+	gcc $(CFLAGS) $(LFLAGS) -o main multithread_writer.o writer.o wrrdaux.o
 
-parallel_writer.o: parallel_writer.c ../../Ex1/wrrd.h writer.h
-	gcc $(CFLAGS) $(OFLAGS) -D_XOPEN_SOURCE parallel_writer.c
+multithread_writer.o: multithread_writer.c ../../Ex1/wrrd.h writer.h
+	gcc $(CFLAGS) $(OFLAGS) -D_XOPEN_SOURCE multithread_writer.c
 
 writer.o: writer.c ../../Ex1/wrrd.h writer.h
 	gcc $(CFLAGS) $(OFLAGS) writer.c ../../Ex1/wrrdaux.c
@@ -15,4 +15,4 @@ wrrdaux.o: ../../Ex1/wrrdaux.c ../../Ex1/wrrd.h
 	gcc $(CFLAGS) $(OFLAGS) ../../Ex1/wrrdaux.c
 
 clean:
-	rm -f main *.o
+	rm -f mt_wr *.o
