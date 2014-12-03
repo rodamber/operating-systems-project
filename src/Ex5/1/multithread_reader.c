@@ -99,6 +99,6 @@ int main(void) {
         perror("Error destroying sincronization objects");
         exit(-1);
     }
-	printf("Returned %d\n", return_value);
+    printf("Returned %d\n", return_value);
     return return_value;
 }

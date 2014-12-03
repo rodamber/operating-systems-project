@@ -28,7 +28,7 @@ int main(void) {
     int i;
     pthread_t writers_ids[NB_WRITERS];
     long int return_values[NB_WRITERS];
-	int return_value = -1;
+    int return_value = -1;
 
     struct sigaction sigusr1;
     struct sigaction sigusr2;
@@ -83,16 +83,17 @@ int main(void) {
      * Join threads.
      */
     for (i = 0; i < NB_WRITERS; i++) {
-		int ret;
+        int ret;
         if (pthread_join(writers_ids[i], (void**) &return_values[i])) {
             perror("Error joining threads");
             exit(-1);
         }
-		ret = (int) return_values[i];
+        ret = (int) return_values[i];
         printf("Thread %d/%d returned %d\n", i + 1, NB_WRITERS, ret);
-		if (ret == 0) {
-			return_value = 0;
-		}
+        if (ret == 0) {
+            return_value = 0;
+        }
     }
+    printf("Returned %d\n", return_value);
     return return_value;
 }
