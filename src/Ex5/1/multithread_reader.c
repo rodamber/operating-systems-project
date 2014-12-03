@@ -17,6 +17,7 @@ int main(void) {
     char filename[FNLEN + 1] = {'\0'};
     pthread_t readers_ids[NB_READERS];
     long int return_values[NB_READERS];
+    int return_value = -1;
 
     /**
      * Sincronization objects initialization.
@@ -43,13 +44,13 @@ int main(void) {
      * Read filenames from input and pass them to child threads.
      */
     while (0 != strcmp(filename, "sair")) {
-		ssize_t bytes_read;
+        ssize_t bytes_read;
 
         if (sem_wait(&sem_no_info)) {
             perror("Error on sem_wait (parent thread)");
             exit(-1);
         }
-		bytes_read = read(STDIN_FILENO, filename, FNLEN + 1);
+        bytes_read = read(STDIN_FILENO, filename, FNLEN + 1);
         if (bytes_read < 0) {
             perror("Error reading from stdin");
             exit(-1);
@@ -59,7 +60,7 @@ int main(void) {
             exit(-1);
         }
 
-		filename[bytes_read - 1] = '\0';
+        filename[bytes_read - 1] = '\0';
         strcpy(buffer[next_write_index], filename);
         next_write_index = (next_write_index + 1) % BUFFER_SIZE;
 
@@ -77,11 +78,16 @@ int main(void) {
      * Join threads
      */
     for (i = 0; i < NB_READERS; i++) {
+        int ret;
         if (pthread_join(readers_ids[i], (void**) &return_values[i])) {
             perror("Error joining threads");
             exit(-1);
         }
-        printf("Thread %d/%d returned %d\n", i + 1, NB_READERS, (int) return_values[i]);
+        ret = (int) return_values[i];
+        printf("Thread %d/%d returned %d\n", i + 1, NB_READERS, ret);
+        if (ret == 0) {
+            return_value = 0;
+        }
     }
 
     /**
@@ -93,5 +99,5 @@ int main(void) {
         perror("Error destroying sincronization objects");
         exit(-1);
     }
-	return ret_val;
+    return return_value;
 }

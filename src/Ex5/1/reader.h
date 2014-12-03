@@ -12,8 +12,8 @@ char buffer[BUFFER_SIZE][FNLEN + 1];
 extern int  next_read_index;
 extern int  next_write_index;
 
-sem_t 		   sem_no_info;
-sem_t 		   sem_info;
+sem_t            sem_no_info;
+sem_t            sem_info;
 pthread_mutex_t buffer_mutex;
 
 

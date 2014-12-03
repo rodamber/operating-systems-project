@@ -30,34 +30,34 @@ void* reader(void* arg) {
 while(!finish_flag) {
     if (sem_wait(&sem_info)) {
         perror("Error on sem_wait (child thread)");
-		exit(-1);
+        exit(-1);
     }
     if (pthread_mutex_lock(&buffer_mutex)) {
         perror("Error on pthread_mutex_lock (child thread)");
-		exit(-1);
+        exit(-1);
     }
-	if (0 != strcmp(buffer[next_read_index], "sair")) {
-    	strcpy(filename, buffer[next_read_index]);
-    	next_read_index = (next_read_index + 1) % BUFFER_SIZE;
-	}
-	else {
-		finish_flag = 1;
-		if (sem_post(&sem_info)) {
-			perror("Error on sem_post (child thread)");
-			exit(-1);
-		}
-	}
+    if (0 != strcmp(buffer[next_read_index], "sair")) {
+        strcpy(filename, buffer[next_read_index]);
+        next_read_index = (next_read_index + 1) % BUFFER_SIZE;
+    }
+    else {
+        finish_flag = 1;
+        if (sem_post(&sem_info)) {
+            perror("Error on sem_post (child thread)");
+            exit(-1);
+        }
+    }
     if (pthread_mutex_unlock(&buffer_mutex)) {
         perror("Error on pthread_mutex_unlock (child thread)");
-		exit(-1);
+        exit(-1);
     }
     if (sem_post(&sem_no_info)) {
         perror("Error on sem_post (child thread)");
-		exit(-1);
+        exit(-1);
     }
-	if (finish_flag) {
-		break;
-	}
+    if (finish_flag) {
+        break;
+    }
 
     filename[FNLEN] = '\0';
     printf("Checking %s\n", filename);
@@ -137,5 +137,5 @@ while(!finish_flag) {
     printf("%s is correct\n", filename);
 
 } /* while(!finish_flag) */
-	return (void*) 0;
+    return (void*) 0;
 }

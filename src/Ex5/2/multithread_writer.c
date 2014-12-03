@@ -88,6 +88,5 @@ int main(void) {
         }
         printf("Thread %d/%d returned %d\n", i + 1, NB_WRITERS, (int) return_values[i]);
     }
-
-    exit(0);
+    return 0;
 }
