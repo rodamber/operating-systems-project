@@ -15,7 +15,9 @@
 
 void* writer(void* arg) {
     char filename[STRLEN + 1];
+    char letter;
     char str[FNLEN + 1];
+    char wrong_str[FNLEN + 1];
     int  strn = STRNUM;
     int  fdesc;         /* file descriptor */
 
@@ -41,9 +43,7 @@ void* writer(void* arg) {
     srand(time(NULL));
 
 while (1) {
-
     if (get_finish_flag()) {
-        puts("====================FINISH LINE====================");
         exit(0);
     }
 
@@ -63,13 +63,23 @@ while (1) {
     }
 
     getstr(str);
+    letter = str[0];
+    strcpy(wrong_str, str);
 
     while (strn--) {
+        char* str_to_write = str;
+
+        if (get_error_writing() && (strn % 2)) {
+            char wrong_letter = (double) rand() / (double) RAND_MAX * 'a';
+            wrong_str[rand() % FNLEN] = (wrong_letter != letter) ? wrong_letter : wrong_letter + 1;
+            str_to_write = wrong_str;
+        }
+
         /*
          * Write to file. Return if number of bytes written is not
          * equal to the number of bytes to be written.
          */
-        if (write(fdesc, str, STRLEN) != STRLEN) {
+        if (write(fdesc, str_to_write, STRLEN) != STRLEN) {
             perror("Error writing file");
             exit(-1);
         }

@@ -15,4 +15,4 @@ wrrdaux.o: ../../Ex1/wrrdaux.c ../../Ex1/wrrd.h
 	gcc $(CFLAGS) $(OFLAGS) ../../Ex1/wrrdaux.c
 
 clean:
-	rm main *.o
+	rm -f main *.o
