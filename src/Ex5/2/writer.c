@@ -18,7 +18,8 @@ void* writer(void* arg) {
     char letter;
     char str[FNLEN + 1];
     char wrong_str[FNLEN + 1];
-    int  strn = STRNUM;
+    char *str_to_write;
+    int  line;
     int  fdesc;         /* file descriptor */
 
     /*
@@ -66,13 +67,14 @@ while (1) {
     letter = str[0];
     strcpy(wrong_str, str);
 
-    while (strn--) {
-        char* str_to_write = str;
+    for (line = 0; line < STRNUM; line++) {
+        str_to_write = str;
 
-        if (get_error_writing() && (strn % 2)) {
+        if (get_error_writing() && (line % 2)) {
             char wrong_letter = (double) rand() / (double) RAND_MAX * 'a';
             wrong_str[rand() % FNLEN] = (wrong_letter != letter) ? wrong_letter : wrong_letter + 1;
             str_to_write = wrong_str;
+            printf("MISTAKE WRITTEN (right/wrong): %c/%c\n", letter, wrong_letter);
         }
 
         /*
