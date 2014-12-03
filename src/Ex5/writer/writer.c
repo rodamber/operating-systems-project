@@ -83,7 +83,7 @@ while (!get_finish_flag()) {
         str_to_write = str;
 
         /*
-         * This produces an error every two lines.
+         * Produce an error every two lines.
          */
         if (get_error_writing() && (line % 2)) {
             wrong_letter = (double) rand() / (double) RAND_MAX * ('z' - 'a') + 'a';
