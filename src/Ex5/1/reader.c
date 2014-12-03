@@ -23,20 +23,31 @@ void* reader(void* arg) {
     int  fdesc;     /* file descriptor */
     int  strn;
 
-	(void) arg;
+    (void) arg;
 
 while(1) {
-    sem_wait(&sem_info);
-    pthread_mutex_lock(&buffer_mutex);
+    if (sem_wait(&sem_info)) {
+        perror("Error on sem_wait (child thread)");
+        exit(-1);
+    }
+    if (pthread_mutex_lock(&buffer_mutex)) {
+        perror("Error on pthread_mutex_lock (child thread)");
+        exit(-1);
+    }
 
     strcpy(filename, buffer[next_read_index]);
     next_read_index = (next_read_index + 1) % BUFFER_SIZE;
 
-    pthread_mutex_unlock(&buffer_mutex);
-    sem_post(&sem_no_info);
+    if (pthread_mutex_unlock(&buffer_mutex)) {
+        perror("Error on pthread_mutex_unlock (child thread)");
+        exit(-1);
+    }
+    if (sem_post(&sem_no_info)) {
+        perror("Error on sem_post (child thread)");
+        exit(-1);
+    }
 
     filename[FNLEN] = '\0';
-
     printf("Checking %s\n", filename);
 
     /*

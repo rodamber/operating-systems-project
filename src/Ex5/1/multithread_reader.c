@@ -43,21 +43,31 @@ int main(void) {
      * Read filenames from input and pass them to child threads.
      */
     while (1) {
-        sem_wait(&sem_no_info);
-
-        if (read(0, filename, FNLEN + 1) < 0) { /* the "+ 1" is there to read a ' ' or a '\n' */
+        if (sem_wait(&sem_no_info)) {
+            perror("Error on sem_wait (parent thread)");
+            exit(-1);
+        }
+        if (read(STDIN_FILENO, filename, FNLEN + 1) < 0) {
             perror("Error reading from stdin");
             exit(-1);
         }
-
-        pthread_mutex_lock(&buffer_mutex);
+        if (pthread_mutex_lock(&buffer_mutex)) {
+            perror("Error on pthread_mutex_lock (parent thread)");
+            exit(-1);
+        }
 
         filename[FNLEN] = '\0';
         strcpy(buffer[next_write_index], filename);
         next_write_index = (next_write_index + 1) % BUFFER_SIZE;
 
-        pthread_mutex_unlock(&buffer_mutex);
-        sem_post(&sem_info);
+        if (pthread_mutex_unlock(&buffer_mutex)) {
+            perror("Error on pthread_mutex_unlock (parent thread)");
+            exit(-1);
+        }
+        if (sem_post(&sem_info)) {
+            perror("Error on sem_post (parent thread)");
+            exit(-1);
+        }
     }
 
     /**
