@@ -1,0 +1,9 @@
+P5:
+Monitor:
+    - os processos filhos devem escrever os valores de retorno das threads filhas?
+    - devemos fechar o stdin no filho?
+
+MAIL:
+    - verificar valor de retorno dos processos (wait(status) exercicio 2?)
+    - dizer que estamos a verificar a primeira linha na parte 3 do exercicio 4
+    - questao do extern
