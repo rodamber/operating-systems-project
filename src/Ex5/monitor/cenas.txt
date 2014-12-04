@@ -1,4 +1,4 @@
 Monitor:
-    - trocar ordem no dup2
     - ver se é input[bytes_read] ou input[bytes_read - 1]
-    - fazer break quando vier o "sair"
+	- programa tem de conseguir entender multiplos comandos de uma vez
+	- se o input dado for errado, o programa nao pode parar

@@ -14,6 +14,7 @@ int next_write_index = 0;
 
 int main(void) {
     int  i;
+    char c;
     char filename[FNLEN + 1] = {'\0'};
     pthread_t readers_ids[NB_READERS];
     long int return_values[NB_READERS];
@@ -60,7 +61,12 @@ int main(void) {
             exit(-1);
         }
 
-        filename[bytes_read - 1] = '\0';
+        if ( (c = filename[bytes_read]) == '\n' || c == ' ') {
+            filename[bytes_read - 1] = '\0';
+        }
+        else {
+            filename[bytes_read] = '\0';
+        }
         strcpy(buffer[next_write_index], filename);
         next_write_index = (next_write_index + 1) % BUFFER_SIZE;
 
@@ -84,7 +90,7 @@ int main(void) {
             exit(-1);
         }
         ret = (int) return_values[i];
-        printf("Thread %d/%d returned %d\n", i + 1, NB_READERS, ret);
+        printf("Reader: thread %d/%d returned %d\n", i + 1, NB_READERS, ret);
         if (ret != 0) {
             return_value = -1;
         }
@@ -99,6 +105,6 @@ int main(void) {
         perror("Error destroying sincronization objects");
         exit(-1);
     }
-    printf("Returned %d\n", return_value);
+    printf("Reader: returned %d\n", return_value);
     return return_value;
 }

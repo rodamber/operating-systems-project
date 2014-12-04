@@ -1,7 +1,5 @@
 P5:
 Monitor:
-    - os processos filhos devem escrever os valores de retorno das threads filhas?
-    - devemos fechar o stdin no filho?
 
 MAIL:
     - verificar valor de retorno dos processos (wait(status) exercicio 2?)

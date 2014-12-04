@@ -89,11 +89,11 @@ int main(void) {
             exit(-1);
         }
         ret = (int) return_values[i];
-        printf("Thread %d/%d returned %d\n", i + 1, NB_WRITERS, ret);
+        printf("Writer: thread %d/%d returned %d\n", i + 1, NB_WRITERS, ret);
         if (ret != 0) {
             return_value = -1;
         }
     }
-    printf("Returned %d\n", return_value);
+    printf("Reader: returned %d\n", return_value);
     return return_value;
 }

@@ -38,7 +38,7 @@ int main(void) {
         exit(-1);
     }
     if (writer_pid == 0) {
-        if (execl("../writer/mt_wr", "mt_wr", NULL, (char*) NULL) == -1) {
+        if (execl("mt_wr", "mt_wr", NULL, (char*) NULL) == -1) {
             perror("Could not execute writer");
             exit(-1);
         }
@@ -53,14 +53,23 @@ int main(void) {
         exit(-1);
     }
     if (reader_pid == 0) {
-        if (dup2(STDIN_FILENO, pipefd[0]) == -1) {
+        if (close(pipefd[1]) == -1) {
+            perror("Could not close write end of pipe (reader)");
+            exit(-1);
+        }
+        if (dup2(pipefd[0], STDIN_FILENO) == -1) {
             perror("Could not redirect stdin to reader");
             exit(-1);
         }
-        if (execl("../reader/mt_rd", "mt_rd", NULL, (char*) NULL) == -1) {
+        if (execl("mt_rd", "mt_rd", NULL, (char*) NULL) == -1) {
             perror("Could not execute reader");
             exit(-1);
         }
+    }
+
+    if (close(pipefd[0]) == -1) {
+            perror("Could not close read end of pipe (parent)");
+            exit(-1);
     }
 
     while (1) {
@@ -93,7 +102,7 @@ int main(void) {
                 exit(-1);
             }
             if (strcmp(input, "sair") == 0) {
-                if (close(pipefd[0]) == -1) {
+                if (close(pipefd[1]) == -1) {
                     perror("Could not close pipe to reader");
                     exit(-1);
                 }
@@ -101,6 +110,7 @@ int main(void) {
                     perror("Could not send SIGTSTP to writer");
                     exit(-1);
                 }
+                break;
             }
         }
     }
