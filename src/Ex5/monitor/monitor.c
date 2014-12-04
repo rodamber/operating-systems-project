@@ -53,6 +53,10 @@ int main(void) {
         exit(-1);
     }
     if (reader_pid == 0) {
+        if (close(pipefd[1]) == -1) {
+            perror("Could not close write end of pipe (reader)");
+            exit(-1);
+        }
         if (dup2(pipefd[0], STDIN_FILENO) == -1) {
             perror("Could not redirect stdin to reader");
             exit(-1);
@@ -61,6 +65,11 @@ int main(void) {
             perror("Could not execute reader");
             exit(-1);
         }
+    }
+
+    if (close(pipefd[0]) == -1) {
+            perror("Could not close read end of pipe (parent)");
+            exit(-1);
     }
 
     while (1) {
@@ -101,7 +110,7 @@ int main(void) {
                     perror("Could not send SIGTSTP to writer");
                     exit(-1);
                 }
-				break;
+                break;
             }
         }
     }

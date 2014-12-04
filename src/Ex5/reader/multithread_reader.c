@@ -14,6 +14,7 @@ int next_write_index = 0;
 
 int main(void) {
     int  i;
+    char c;
     char filename[FNLEN + 1] = {'\0'};
     pthread_t readers_ids[NB_READERS];
     long int return_values[NB_READERS];
@@ -60,7 +61,12 @@ int main(void) {
             exit(-1);
         }
 
-        filename[bytes_read - 1] = '\0';
+        if ( (c = filename[]) == '\n' || c == ' ') {
+            filename[bytes_read - 1] = '\0';
+        }
+        else {
+            filename[bytes_read] = '\0';
+        }
         strcpy(buffer[next_write_index], filename);
         next_write_index = (next_write_index + 1) % BUFFER_SIZE;
 
