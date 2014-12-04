@@ -1,9 +1,9 @@
 all:
-	(cd reader/; make all)
-	(cd writer/; make all)
-	(cd monitor/; make all)
+	(cd reader/;  make)
+	(cd writer/;  make)
+	(cd monitor/; make)
 
 clean:
-	(cd reader/; make clean)
-	(cd writer/; make clean)
+	(cd reader/;  make clean)
+	(cd writer/;  make clean)
 	(cd monitor/; make clean)

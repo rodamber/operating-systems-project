@@ -53,10 +53,6 @@ int main(void) {
         exit(-1);
     }
     if (reader_pid == 0) {
-        if (close(STDIN_FILENO) == -1) {
-            perror("Could not close stdin (reader)");
-            exit(-1);
-        }
         if (dup2(STDIN_FILENO, pipefd[0]) == -1) {
             perror("Could not redirect stdin to reader");
             exit(-1);
