@@ -53,7 +53,7 @@ int main(void) {
         exit(-1);
     }
     if (reader_pid == 0) {
-        if (dup2(STDIN_FILENO, pipefd[0]) == -1) {
+        if (dup2(pipefd[0], STDIN_FILENO) == -1) {
             perror("Could not redirect stdin to reader");
             exit(-1);
         }
@@ -101,6 +101,7 @@ int main(void) {
                     perror("Could not send SIGTSTP to writer");
                     exit(-1);
                 }
+				break;
             }
         }
     }
