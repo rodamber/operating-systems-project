@@ -17,7 +17,7 @@ int main(void) {
     char filename[FNLEN + 1] = {'\0'};
     pthread_t readers_ids[NB_READERS];
     long int return_values[NB_READERS];
-    int return_value = -1;
+    int return_value = 0;
 
     /**
      * Sincronization objects initialization.
@@ -85,8 +85,8 @@ int main(void) {
         }
         ret = (int) return_values[i];
         printf("Thread %d/%d returned %d\n", i + 1, NB_READERS, ret);
-        if (ret == 0) {
-            return_value = 0;
+        if (ret != 0) {
+            return_value = -1;
         }
     }
 

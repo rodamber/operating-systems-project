@@ -28,7 +28,7 @@ int main(void) {
     int i;
     pthread_t writers_ids[NB_WRITERS];
     long int return_values[NB_WRITERS];
-    int return_value = -1;
+    int return_value = 0;
 
     struct sigaction sigusr1;
     struct sigaction sigusr2;
@@ -90,8 +90,8 @@ int main(void) {
         }
         ret = (int) return_values[i];
         printf("Thread %d/%d returned %d\n", i + 1, NB_WRITERS, ret);
-        if (ret == 0) {
-            return_value = 0;
+        if (ret != 0) {
+            return_value = -1;
         }
     }
     printf("Returned %d\n", return_value);
