@@ -1,0 +1,4 @@
+Monitor:
+    - trocar ordem no dup2
+    - ver se é input[bytes_read] ou input[bytes_read - 1]
+    - fazer break quando vier o "sair"
