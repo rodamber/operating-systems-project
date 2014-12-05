@@ -40,7 +40,7 @@ void mistakes_trigger_msg(void) {
 }
 
 int main(void) {
-    char input[FNLEN + 1]; /* = {'\0'};*/
+    char input[FNLEN + 1] = {'\0'};
 
     int  i;
     int  pipefd[2];

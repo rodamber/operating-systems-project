@@ -2,7 +2,7 @@
 #define __WRITER_H__
 
 
-#define NB_WRITERS  4
+#define NB_WRITERS  20
 
 int get_file_locking (void);
 int get_error_writing(void);
