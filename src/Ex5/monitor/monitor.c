@@ -145,18 +145,17 @@ int main(void) {
      * Wait for child processes.
      */
     for (i = 0; i < NB_CHILDS; i++) {
-        int ret;
         int status;
 
         while (wait(&status) == -1)
             ;
-        if (WIFEXITED(status) != 0) {
-            ret = WEXITSTATUS(status);
+        if (WIFEXITED(status)) {
+            if( WEXITSTATUS(status) ) {
+                return_value = -1;
+            }
             printf("Child finished with status=%d\n", status);
         }
-        if (ret != 0) {
-            return_value = -1;
-        }
+        printf("ret=%d\n", return_value);
     }
     return return_value;
 }

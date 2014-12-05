@@ -6,10 +6,6 @@
 #include "ex5_util.h"
 
 
-int terminator(char c) {
-    return (c == '\n' || c == '\0' || c == ' ' || c == EOF);
-}
-
 int read_word(char* dst, int max_length) {
     int  i = 0;
     char c;
@@ -21,12 +17,6 @@ int read_word(char* dst, int max_length) {
         dst[i++] = c;
     }
     dst[i] = '\0';
-
-    if (i < max_length) {
-        while (!terminator(c)) {
-            c = read_char();
-        }
-    }
     return i;
 }
 
@@ -38,3 +28,6 @@ char read_char() {
     return c;
 }
 
+int terminator(char c) {
+    return (c == '\n' || c == '\0' || c == ' ' || c == EOF);
+}

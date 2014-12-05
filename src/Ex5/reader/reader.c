@@ -30,6 +30,7 @@ void* reader(void* arg) {
     unsigned int  error_count;
     unsigned int  strn;
 
+    int  bytes_read;
     int  fdesc;
 
     (void) arg;
@@ -68,6 +69,10 @@ while (!finish_flag) {
         break;
     }
 
+    if (terminator(filename[0])) {
+        continue;
+    }
+
     printf("Checking %s\n", filename);
 
     /*
@@ -78,6 +83,9 @@ while (!finish_flag) {
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
         if (errno == ENOENT) {
             printf("File does not exist: %s\n", filename);
+            continue;
+        } else if (errno == EISDIR) {
+            printf("Not a file: %s\n", filename);
             continue;
         }
         perror("Error opening file");
@@ -120,8 +128,8 @@ while (!finish_flag) {
     /*
      * Check if all lines are equal. Return if not.
      */
-    for  (strn = 0; (i = read(fdesc, line, STRLEN)); strn++) {
-        if (i == -1) {
+    for  (strn = 0; (bytes_read = read(fdesc, line, STRLEN)); strn++) {
+        if (bytes_read == -1) {
             perror("Error reading file");
             return (void*) -1;
         }
