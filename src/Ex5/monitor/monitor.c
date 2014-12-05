@@ -15,6 +15,30 @@
 #define NB_CHILDS 2
 
 
+void lock_trigger_msg(void) {
+    static int locks = 1;
+
+    locks = !locks;
+    if (locks) {
+        puts("Using locks...");
+    }
+    else {
+        puts("Not using locks...");
+    }
+}
+
+void mistakes_trigger_msg(void) {
+    static int mistakes = 0;
+
+    mistakes = !mistakes;
+    if (mistakes) {
+        puts("Writing mistakes...");
+    }
+    else {
+        puts ("No mistakes...");
+    }
+}
+
 int main(void) {
     char input[FNLEN + 1]; /* = {'\0'};*/
 
@@ -86,20 +110,25 @@ int main(void) {
             exit(-1);
         }
         if (strcmp(input, "il") == 0) {
+            lock_trigger_msg();
             if (kill(writer_pid, SIGUSR1) == -1) {
                 perror("Could not send SIGUSR1 to writer");
                 exit(-1);
             }
         }
         else if (strcmp(input, "ie") == 0) {
+            mistakes_trigger_msg();
             if (kill(writer_pid, SIGUSR2) == -1) {
                 perror("Could not send SIGUSR2 to writer");
                 exit(-1);
             }
         }
-        else if (write(pipefd[WRITE_END], input, input_length) != input_length) {
-            perror("Could not write to reader");
-            exit(-1);
+        else {
+            input[input_length] = '\0';
+            if (write(pipefd[WRITE_END], input, input_length + 1) != (input_length + 1)) {
+                perror("Could not write to reader");
+                exit(-1);
+            }
         }
     }
 
