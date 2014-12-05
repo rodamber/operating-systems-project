@@ -94,6 +94,6 @@ int main(void) {
             return_value = -1;
         }
     }
-    printf("Reader: returned %d\n", return_value);
+    printf("Writer: returned %d\n", return_value);
     return return_value;
 }
