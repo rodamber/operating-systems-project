@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "../../Ex1/wrrd.h"
+#include "../util/ex5_util.h"
 #include "reader.h"
 
 int next_read_index  = 0;
@@ -14,7 +15,6 @@ int next_write_index = 0;
 
 int main(void) {
     int  i;
-    char c;
     char filename[FNLEN + 1] = {'\0'};
     pthread_t readers_ids[NB_READERS];
     long int return_values[NB_READERS];
@@ -45,27 +45,17 @@ int main(void) {
      * Read filenames from input and pass them to child threads.
      */
     while (0 != strcmp(filename, "sair")) {
-        ssize_t bytes_read;
-
         if (sem_wait(&sem_no_info)) {
             perror("Error on sem_wait (parent thread)");
             exit(-1);
         }
-        bytes_read = read(STDIN_FILENO, filename, FNLEN + 1);
-        if (bytes_read < 0) {
+        if (read_word(filename, FNLEN + 1) < 0) {
             perror("Error reading from stdin");
             exit(-1);
         }
         if (pthread_mutex_lock(&buffer_mutex)) {
             perror("Error on pthread_mutex_lock (parent thread)");
             exit(-1);
-        }
-
-        if ( (c = filename[bytes_read]) == '\n' || c == ' ') {
-            filename[bytes_read - 1] = '\0';
-        }
-        else {
-            filename[bytes_read] = '\0';
         }
         strcpy(buffer[next_write_index], filename);
         next_write_index = (next_write_index + 1) % BUFFER_SIZE;

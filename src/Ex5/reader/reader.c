@@ -17,17 +17,22 @@
 static int finish_flag = 0;
 
 
+void incorrect_file_msg(const char* filename, const char* msg) {
+    printf("Incorrect file -> %s: %s\n", filename, msg);
+}
+
 void* reader(void* arg) {
     char filename[FNLEN + 1];
     char line[STRLEN + 1];
     char firstline[STRLEN + 1];
     int  i;
+    int  incorrect_file = 0;
     int  fdesc;
     int  strn;
 
     (void) arg;
 
-while(!finish_flag) {
+while (!finish_flag) {
     if (sem_wait(&sem_info)) {
         perror("Error on sem_wait (child thread)");
         exit(-1);
@@ -59,7 +64,6 @@ while(!finish_flag) {
         break;
     }
 
-    filename[FNLEN] = '\0';
     printf("Checking %s\n", filename);
 
     /*
@@ -68,10 +72,13 @@ while(!finish_flag) {
      * O_RDONLY: Open the file so that it is read only.
      */
     if ((fdesc = open(filename, O_RDONLY)) < 0) {
+        if (errno == ENOENT) {
+            printf("File does not exist: %s\n", filename);
+            continue;
+        }
         perror("Error opening file");
         return (void*) -1;
     }
-
     if (flock(fdesc, LOCK_SH) < 0) {
         perror("Error locking file");
         return (void*) -1;
@@ -91,34 +98,43 @@ while(!finish_flag) {
      * 'a' and 'j', followed by a newline character, '\n'.
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a' || firstline[0] > 'j') {
-        return (void*) -1;
+        incorrect_file = 1;
+        incorrect_file_msg(filename, "char not between 'a' and 'j'");
     }
     for (i = 1; i < STRLEN - 1; i++) {
         if (firstline[i] != firstline[0]) {
-            return (void*) -1;
+            incorrect_file = 1;
+            incorrect_file_msg(filename, "line not all equal");
         }
     }
     if (firstline[STRLEN - 1] != '\n') {
-        return (void*) -1;
+        incorrect_file = 1;
+        incorrect_file_msg(filename, "last char of line not a '\n'");
     }
 
     /*
      * Check if all lines are equal. Return if not.
      */
-    for  (strn = 0; read(fdesc, line, STRLEN); strn++) {
+    for  (strn = 0; (i = read(fdesc, line, STRLEN)); strn++) {
+        if (i == -1) {
+            perror("Error reading file");
+            return (void*) -1;
+        }
         line[STRLEN] = '\0';
 
         if (strcmp(line, firstline)) {
-            return (void*) -1;
+            incorrect_file = 1;
+            incorrect_file_msg(filename, "lines not all equal");
+            break;
         }
     }
 
     /*
-     * Return if there aren't STRNUM valid strings in the file or if there
-     * was an error reading the file.
+     * Return if there aren't STRNUM valid strings in the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-        return (void*) -1;
+        incorrect_file = 1;
+        incorrect_file_msg(filename, "illegal number of lines");
     }
 
     if (flock(fdesc, LOCK_UN) < 0) {
@@ -134,6 +150,9 @@ while(!finish_flag) {
         return (void*) -1;
     }
 
+    if (incorrect_file) {
+        continue;
+    }
     printf("%s is correct\n", filename);
 
 } /* while(!finish_flag) */
