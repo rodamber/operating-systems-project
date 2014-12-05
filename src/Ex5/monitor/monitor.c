@@ -35,9 +35,10 @@ void mistakes_trigger_msg(void) {
         puts("Writing mistakes...");
     }
     else {
-        puts ("No mistakes...");
+        puts("No mistakes...");
     }
 }
+
 
 int main(void) {
     char input[FNLEN + 1] = {'\0'};
@@ -124,7 +125,6 @@ int main(void) {
             }
         }
         else {
-            input[input_length] = '\0';
             if (write(pipefd[WRITE_END], input, input_length + 1) != (input_length + 1)) {
                 perror("Could not write to reader");
                 exit(-1);
