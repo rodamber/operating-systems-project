@@ -7,15 +7,21 @@
 #include <unistd.h>
 
 #include "../../Ex1/wrrd.h"
+#include "../util/ex5_util.h"
+
+#define READ_END  0
+#define WRITE_END 1
 
 #define NB_CHILDS 2
 
 
 int main(void) {
-    char  input[FNLEN + 1];
-    int   nb_childs;
-    int   pipefd[2];
-    int   return_value;
+    char input[FNLEN + 1] = {'\0'};
+
+    int  i;
+    int  pipefd[2];
+    int  return_value;
+
     pid_t reader_pid;
     pid_t writer_pid;
 
@@ -29,6 +35,7 @@ int main(void) {
 
     printf("Creating child processes...\n");
 
+printf("parent's pid = %ld\n", (long) getpid());
     /*
      * Fork into writer.
      */
@@ -37,8 +44,9 @@ int main(void) {
         perror("Could not fork a child (parent->writer)");
         exit(-1);
     }
-    if (writer_pid == 0) {
-        if (execl("mt_wr", "mt_wr", NULL, (char*) NULL) == -1) {
+    else if (writer_pid == 0) { /* child - writer */
+printf("writer's pid = %ld\n", (long) getpid());
+        if (execl("../writer/mt_wr", "mt_wr", NULL, (char*) NULL) == -1) {
             perror("Could not execute writer");
             exit(-1);
         }
@@ -52,36 +60,35 @@ int main(void) {
         perror("Could not fork a child (parent->reader)");
         exit(-1);
     }
-    if (reader_pid == 0) {
-        if (close(pipefd[1]) == -1) {
+    else if (reader_pid == 0) { /* child - reader */
+printf("reader's pid = %ld\n", (long) getpid());
+
+        if (close(pipefd[WRITE_END]) == -1) {
             perror("Could not close write end of pipe (reader)");
             exit(-1);
         }
-        if (dup2(pipefd[0], STDIN_FILENO) == -1) {
+        if (dup2(pipefd[READ_END], STDIN_FILENO) == -1) {
             perror("Could not redirect stdin to reader");
             exit(-1);
         }
-        if (execl("mt_rd", "mt_rd", NULL, (char*) NULL) == -1) {
+        if (execl("../reader/mt_rd", "mt_rd", NULL, (char*) NULL) == -1) {
             perror("Could not execute reader");
             exit(-1);
         }
     }
 
-    if (close(pipefd[0]) == -1) {
+    if (close(pipefd[READ_END]) == -1) {
             perror("Could not close read end of pipe (parent)");
             exit(-1);
     }
 
-    while (1) {
-        ssize_t bytes_read;
+    while (strcmp(input, "sair") != 0) {
+        int input_length;
 
-        bytes_read = read(STDIN_FILENO, input, FNLEN + 1);
-        if (bytes_read == -1) {
+        if ((input_length = read_word(input, FNLEN + 1))  == -1) {
             perror("Could not read from stdin");
             exit(-1);
         }
-        input[bytes_read - 1] = '\0';
-
         if (strcmp(input, "il") == 0) {
             if (kill(writer_pid, SIGUSR1) == -1) {
                 perror("Could not send SIGUSR1 to writer");
@@ -94,31 +101,25 @@ int main(void) {
                 exit(-1);
             }
         }
-        else {
-            int input_len = strlen(input);
-
-            if (write(pipefd[1], input, input_len) != input_len) {
-                perror("Could not write to reader");
-                exit(-1);
-            }
-            if (strcmp(input, "sair") == 0) {
-                if (close(pipefd[1]) == -1) {
-                    perror("Could not close pipe to reader");
-                    exit(-1);
-                }
-                if (kill(writer_pid, SIGTSTP) == -1) {
-                    perror("Could not send SIGTSTP to writer");
-                    exit(-1);
-                }
-                break;
-            }
+        else if (write(pipefd[WRITE_END], input, input_length) != input_length) {
+            perror("Could not write to reader");
+            exit(-1);
         }
+    }
+
+    if (close(pipefd[WRITE_END]) == -1) {
+        perror("Could not close write end of pipe (parent)");
+        exit(-1);
+    }
+    if (kill(writer_pid, SIGTSTP) == -1) {
+        perror("Could not send SIGTSTP to writer");
+        exit(-1);
     }
 
     /*
      * Wait for child processes.
      */
-    for (nb_childs = 0; nb_childs < NB_CHILDS; nb_childs++) {
+    for (i = 0; i < NB_CHILDS; i++) {
         int ret;
         int status;
 
