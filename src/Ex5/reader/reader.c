@@ -18,21 +18,25 @@ static int finish_flag = 0;
 
 
 void incorrect_file_msg(const char* filename, const char* msg) {
-    printf("Incorrect file -> %s: %s\n", filename, msg);
+    printf("%s: %s\n", filename, msg);
 }
 
 void* reader(void* arg) {
     char filename[FNLEN + 1];
     char line[STRLEN + 1];
     char firstline[STRLEN + 1];
-    int  i;
-    int  incorrect_file = 0;
+
+    unsigned int  i;
+    unsigned int  error_count;
+    unsigned int  strn;
+
     int  fdesc;
-    int  strn;
 
     (void) arg;
 
 while (!finish_flag) {
+    error_count = 0;
+
     if (sem_wait(&sem_info)) {
         perror("Error on sem_wait (child thread)");
         exit(-1);
@@ -98,17 +102,18 @@ while (!finish_flag) {
      * 'a' and 'j', followed by a newline character, '\n'.
      */
     if (strlen(firstline) != STRLEN || firstline[0] < 'a' || firstline[0] > 'j') {
-        incorrect_file = 1;
+        error_count++;
         incorrect_file_msg(filename, "char not between 'a' and 'j'");
     }
     for (i = 1; i < STRLEN - 1; i++) {
         if (firstline[i] != firstline[0]) {
-            incorrect_file = 1;
-            incorrect_file_msg(filename, "line not all equal");
+            error_count++;
+            incorrect_file_msg(filename, "firstline not all equal");
+            break;
         }
     }
     if (firstline[STRLEN - 1] != '\n') {
-        incorrect_file = 1;
+        error_count++;
         incorrect_file_msg(filename, "last char of line not a '\n'");
     }
 
@@ -123,7 +128,7 @@ while (!finish_flag) {
         line[STRLEN] = '\0';
 
         if (strcmp(line, firstline)) {
-            incorrect_file = 1;
+            error_count++;
             incorrect_file_msg(filename, "lines not all equal");
             break;
         }
@@ -133,7 +138,7 @@ while (!finish_flag) {
      * Return if there aren't STRNUM valid strings in the file.
      */
     if (strn != STRNUM - 1) { /* -1 because the first line was already read */
-        incorrect_file = 1;
+        error_count++;
         incorrect_file_msg(filename, "illegal number of lines");
     }
 
@@ -150,7 +155,8 @@ while (!finish_flag) {
         return (void*) -1;
     }
 
-    if (incorrect_file) {
+    if (error_count > 0) {
+        printf("%s: %d errors\n", filename, error_count);
         continue;
     }
     printf("%s is correct\n", filename);
