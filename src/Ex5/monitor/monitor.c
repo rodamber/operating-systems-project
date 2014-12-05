@@ -16,7 +16,7 @@
 
 
 int main(void) {
-    char input[FNLEN + 1] = {'\0'};
+    char input[FNLEN + 1]; /* = {'\0'};*/
 
     int  i;
     int  pipefd[2];
@@ -35,7 +35,6 @@ int main(void) {
 
     printf("Creating child processes...\n");
 
-printf("parent's pid = %ld\n", (long) getpid());
     /*
      * Fork into writer.
      */
@@ -45,7 +44,6 @@ printf("parent's pid = %ld\n", (long) getpid());
         exit(-1);
     }
     else if (writer_pid == 0) { /* child - writer */
-printf("writer's pid = %ld\n", (long) getpid());
         if (execl("../writer/mt_wr", "mt_wr", NULL, (char*) NULL) == -1) {
             perror("Could not execute writer");
             exit(-1);
@@ -61,14 +59,12 @@ printf("writer's pid = %ld\n", (long) getpid());
         exit(-1);
     }
     else if (reader_pid == 0) { /* child - reader */
-printf("reader's pid = %ld\n", (long) getpid());
-
-        if (close(pipefd[WRITE_END]) == -1) {
-            perror("Could not close write end of pipe (reader)");
-            exit(-1);
-        }
         if (dup2(pipefd[READ_END], STDIN_FILENO) == -1) {
             perror("Could not redirect stdin to reader");
+            exit(-1);
+        }
+        if (close(pipefd[WRITE_END]) == -1) {
+            perror("Could not close write end of pipe (reader)");
             exit(-1);
         }
         if (execl("../reader/mt_rd", "mt_rd", NULL, (char*) NULL) == -1) {
@@ -78,8 +74,8 @@ printf("reader's pid = %ld\n", (long) getpid());
     }
 
     if (close(pipefd[READ_END]) == -1) {
-            perror("Could not close read end of pipe (parent)");
-            exit(-1);
+        perror("Could not close read end of pipe (parent)");
+        exit(-1);
     }
 
     while (strcmp(input, "sair") != 0) {
