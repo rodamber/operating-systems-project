@@ -6,11 +6,6 @@
 #include "ex5_util.h"
 
 
-void die(const char* msg) {
-    perror(msg);
-    exit(-1);
-}
-
 int read_word(char* dst, int max_length) {
     int  i = 0;
     char c;
