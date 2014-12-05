@@ -152,7 +152,7 @@ int main(void) {
             ;
         if (WIFEXITED(status) != 0) {
             ret = WEXITSTATUS(status);
-            printf("Child finished and returned %d\n", ret);
+            printf("Child finished with status=%d\n", status);
         }
         if (ret != 0) {
             return_value = -1;
